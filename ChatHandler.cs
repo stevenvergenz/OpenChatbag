@@ -16,28 +16,22 @@ namespace OpenChatbag
 
 	public class ChatHandler
 	{
-		public static string ChatHandle = "[Chatbag]";
+		public string ChatHandle { get; set; }
 		public int ChatChannel { get; set; }
-		public GIFTCapsule Parent { get; private set; }
-
+		
 		Dictionary<string, ChatHandlerDelegate> commandList;
 		Dictionary<string, ValidationDelegate> fieldValidateList;
 		
 		#region constructors
 		
-		protected ChatHandler()
+		public ChatHandler()
 		{
 			commandList = new Dictionary<string, ChatHandlerDelegate>();
 			fieldValidateList = new Dictionary<string, ValidationDelegate>();
+			ChatHandle = "[Chatbag]";
+			ChatChannel = 0;
 		}
 
-		public ChatHandler(GIFTCapsule capsule)	: this(){
-			Parent = capsule;
-		}
-		public ChatHandler(GIFTCapsule capsule, int channel) : this(capsule){
-			ChatChannel = channel;
-		}
-		
 		#endregion
 
 

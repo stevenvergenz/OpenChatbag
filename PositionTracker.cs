@@ -15,7 +15,7 @@ namespace OpenChatbag
 	{
 		private readonly ILog os_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 		
-		UUID Target;
+		public UUID Target;
 		public Vector3 Position { get; protected set; }
 		public Vector3 Orientation { get; protected set; }
 
@@ -78,6 +78,13 @@ namespace OpenChatbag
 				PositionTracker.TrackerMap.Add(target, tracker);
 				return tracker;
 			}
+		}
+		public static PositionTracker addTracker(PositionTracker tracker)
+		{
+			if( tracker != null && !PositionTracker.TrackerMap.ContainsKey( tracker.Target ) ){
+				PositionTracker.TrackerMap.Add( tracker.Target, tracker );
+			}
+			else return tracker;
 		}
 		
 		public static bool removeTracker(UUID target)
