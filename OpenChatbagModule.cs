@@ -7,7 +7,6 @@ using System.Text;
 
 using Mono.Addins;
 using System.Reflection;
-using System.Collections.Generic;
 
 using OpenSim.Framework;
 using OpenSim.Region.Framework.Interfaces;

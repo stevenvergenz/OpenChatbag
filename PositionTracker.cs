@@ -11,47 +11,26 @@ using OpenSim.Region.Framework.Scenes;
 
 namespace OpenChatbag
 {
-	public class PositionTracker : BaseHeartbeater
+	public class PositionTracker
 	{
-		protected GIFTCapsule Parent;
-
-		private string m_topicName;
-		public string DestinationTopic{
-			get	{
-				return m_topicName;
-			}
-			set	{
-				m_topicName = value;
-				Destination = new ActiveMQTopic(value);
-			}
-		}
-		public GiftMessage templateMessage{
-			get	{
-				return TemplateMessage;
-			}
-			set	{
-				TemplateMessage = value;
-			}
-		}
-
+		private readonly ILog os_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+		
+		UUID Target;
 		public Vector3 Position { get; protected set; }
 		public Vector3 Orientation { get; protected set; }
-		//StreamWriter fileWriter;
 
-		public PositionTracker(GIFTCapsule parent, MessageBroker broker) : base(broker)
+		protected PositionTracker(UUID target)
 		{
-			Parent = parent;
+			Target = target;
 			Position = new Vector3();
 			Orientation = new Vector3();
 		}
 
-		public override void Start()
+		/*public override void Start()
 		{
-			if (IsActive) return;
-
-			foreach (Scene s in GIFTConnector.Scenes)
+			foreach (Scene s in OpenChatbagModule.Scenes)
 			{
-				GIFTCapsule.os_log.InfoFormat("[GIFT]: Registering listener with {0}", s.RegionInfo.RegionName);
+				os_log.InfoFormat("[GIFT]: Registering listener with {0}", s.RegionInfo.RegionName);
 				s.EventManager.OnClientMovement += UpdatePosition;
 
 				ScenePresence presence = s.GetScenePresence(Parent.AvatarID);
@@ -79,43 +58,54 @@ namespace OpenChatbag
 			Parent.chatHandler.SendMessageToAvatar("Okay, we're on the clock. Let's get to work!");
 			
 			base.Start();
-		}
+		}*/
 
-		public override void Stop()
+		
+		#region Static Tracker 
+		
+		private static Dictionary<UUID, PositionTracker> TrackerMap;
+		
+		static PositionTracker(){
+			TrackerMap = new Dictionary<UUID, PositionTracker>();
+		}
+		
+		public static PositionTracker addTracker(UUID target)
 		{
-			if (IsActive)
-			{
-				base.Stop();
-				foreach(Scene s in GIFTConnector.Scenes){
-					s.EventManager.OnClientMovement -= UpdatePosition;
-				}
-				Parent.chatHandler.SendMessageToAvatar("Whew, we're done!");
+			if( PositionTracker.TrackerMap.ContainsKey(target) )
+				return PositionTracker.TrackerMap[target];
+			else {
+				PositionTracker tracker = new PositionTracker(target);
+				PositionTracker.TrackerMap.Add(target, tracker);
+				return tracker;
 			}
 		}
-
-		protected override void PrepareMessage()
+		
+		public static bool removeTracker(UUID target)
 		{
-			TemplateMessage["location.POINT_X"] = Position.X;
-			TemplateMessage["location.POINT_Y"] = Position.Y;
-			TemplateMessage["location.POINT_Z"] = Position.Z;
-			TemplateMessage["orientation.VECTOR_X"] = Orientation.X;
-			TemplateMessage["orientation.VECTOR_Y"] = Orientation.Y;
-			TemplateMessage["orientation.VECTOR_Z"] = Orientation.Z;
+			if( PositionTracker.TrackerMap.ContainsKey(target) ){
+				PositionTracker.TrackerMap.Remove(target);
+				return true;
+			}
+			else return false;
 		}
-
-		protected void UpdatePosition(ScenePresence client)
+		
+		public static void UpdatePosition(ScenePresence client)
 		{
-			if (client.UUID != Parent.AvatarID)
-				return;
-
-			// transform region coordinates to globals
-			Vector3 pos = Position;
-			Vector3 rot = Orientation;
-			pos.X = client.Scene.RegionInfo.RegionLocX * 256 + client.AbsolutePosition.X;
-			pos.Y = client.Scene.RegionInfo.RegionLocY * 256 + client.AbsolutePosition.Y;
-			client.Rotation.GetEulerAngles(out rot.X, out rot.Y, out rot.Z);
-			Position = pos;
-			Orientation = rot;
+			if (PositionTracker.TrackerMap.ContainsKey(client.UUID))
+			{
+				// transform region coordinates to globals
+				PositionTracker tracker = PositionTracker.TrackerMap[client.UUID];
+				Vector3 pos = tracker.Position;
+				Vector3 rot = tracker.Orientation;
+				
+				pos.X = client.Scene.RegionInfo.RegionLocX * 256 + client.AbsolutePosition.X;
+				pos.Y = client.Scene.RegionInfo.RegionLocY * 256 + client.AbsolutePosition.Y;
+				
+				tracker.Position = pos;
+				tracker.Orientation = rot;
+			}
 		}
+		
+		#endregion
 	}
 }

@@ -7,18 +7,16 @@ using OpenSim.Framework;
 using OpenSim.Region.Framework.Interfaces;
 using OpenSim.Region.Framework.Scenes;
 
-using GIFTConnector.Common;
-
 using log4net;
 
-namespace GIFTConnector
+namespace OpenChatbag
 {
 	public delegate bool ValidationDelegate(string s);
 	public delegate void ChatHandlerDelegate(List<string> command);
 
 	public class ChatHandler
 	{
-		public static string ChatHandle = "[GIFT]";
+		public static string ChatHandle = "[Chatbag]";
 		public int ChatChannel { get; set; }
 		public GIFTCapsule Parent { get; private set; }
 
@@ -224,7 +222,7 @@ namespace GIFTConnector
 
 		public static void SendMessageToWorld(int channel, string message)
 		{
-			foreach (Scene s in GIFTConnector.Scenes) {
+			foreach (Scene s in OpenChatbagModule.Scenes) {
 				
 				IWorldComm comm = s.RequestModuleInterface<IWorldComm>();
 				if (comm != null) {
