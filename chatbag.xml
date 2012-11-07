@@ -27,8 +27,8 @@
 				</fields>
 				
 				<!-- 1 or more -->
-				<chatTrigger channel="543" phrase="hi|hello"/>
-				<chatTrigger channel="0" phrase="is_ip_{ip}"/>
+				<chatTrigger channel="0" phrase="hi|hello"/>
+				<chatTrigger channel="543" phrase="is_ip_{ip}"/>
 				<proximityTrigger/>
 			</triggers>
 			
