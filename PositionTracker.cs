@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
 
 using log4net;
 using System.Reflection;
 using OpenMetaverse;
+using OpenSim.Region.Framework;
 using OpenSim.Region.Framework.Scenes;
+using OpenSim.Region.Framework.Interfaces;
 
 
 namespace OpenChatbag

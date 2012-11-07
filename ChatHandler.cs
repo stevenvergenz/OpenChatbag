@@ -4,6 +4,7 @@ using System.Reflection;
 
 using OpenMetaverse;
 using OpenSim.Framework;
+using OpenSim.Region.Framework;
 using OpenSim.Region.Framework.Interfaces;
 using OpenSim.Region.Framework.Scenes;
 
@@ -16,8 +17,7 @@ namespace OpenChatbag
 
 	public class ChatHandler
 	{
-		public string ChatHandle { get; set; }
-		public int ChatChannel { get; set; }
+		public static string ChatHandle = "[Chatbag]";
 		
 		Dictionary<string, ChatHandlerDelegate> commandList;
 		Dictionary<string, ValidationDelegate> fieldValidateList;
@@ -28,8 +28,6 @@ namespace OpenChatbag
 		{
 			commandList = new Dictionary<string, ChatHandlerDelegate>();
 			fieldValidateList = new Dictionary<string, ValidationDelegate>();
-			ChatHandle = "[Chatbag]";
-			ChatChannel = 0;
 		}
 
 		#endregion
@@ -148,15 +146,12 @@ namespace OpenChatbag
 
 		public void DefaultChatHandler(List<string> command)
 		{
-			SendMessageToAvatar("I don't understand...");
+			//SendMessageToAvatar("I don't understand...");
 		}
 
 
 		public void HandleChatInput(object sender, OSChatMessage msg)
 		{
-			if (msg.Channel != ChatChannel)
-				return;
-
 			ProcessCommand(msg.Message);
 			
 			/*
@@ -212,27 +207,11 @@ namespace OpenChatbag
 		}
 
 		#region outgoing chat functions
-		//TODO: Update avatar messaging with scene awareness
-		public void SendMessageToAvatar(string message)
-		{
-			/*foreach (Scene s in GIFTCapsule.Scenes) {
-				IWorldComm comm = s.RequestModuleInterface<IWorldComm>();
-				ScenePresence p = s.GetScenePresence(Parent.AvatarID);
-				if (p != null && comm != null) {
-					os_log.InfoFormat("[GIFT]: Broadcasting to scene {0}", s.GetHashCode());
-					comm.DeliverMessage(ChatTypeEnum.Region, ChatChannel, ChatHandle, UUID.Zero, message);
-					return;
-				}
-			}
-			os_log.Error("[GIFT]: Communication channel or scene presence could not be established!");*/
-			SendMessageToWorld(ChatChannel, message);
-		}
-
 		public static void SendMessageToWorld(int channel, string message)
 		{
 			foreach (Scene s in OpenChatbagModule.Scenes) {
 				
-				IWorldComm comm = s.RequestModuleInterface<IWorldComm>();
+				IWorldComm comm = (IWorldComm)s.RequestModuleInterface<IWorldComm>();
 				if (comm != null) {
 					comm.DeliverMessage(ChatTypeEnum.Region, channel, ChatHandle, UUID.Zero, message);
 				}

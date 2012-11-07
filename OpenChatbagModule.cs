@@ -32,6 +32,8 @@ namespace OpenChatbag
 		public bool IsSharedModule { get { return true; } }
 		public Type ReplaceableInterface { get { return null; } }
 		#endregion
+		
+		public PositionTracker positionTracker;
 
 		#region Module Handles
 		// runs immediately after the module is loaded, before attachment to anything
@@ -39,6 +41,7 @@ namespace OpenChatbag
 		{
 			os_log.Debug("[OpenChatbag]: Initializing.");
 			Scenes = new List<Scene>();
+			positionTracker = new PositionTracker();
 		}
 
 		// runs after Initialize, but before modules are added
@@ -52,7 +55,7 @@ namespace OpenChatbag
 		{
 			Scenes.Add(scene);
 			
-			scene.EventManager.OnClientMovement += PositionTracker.UpdatePosition;
+			scene.EventManager.OnClientMovement += new ClientMovement(positionTracker.UpdatePosition);
 		}
 
 		// runs after all modules have been loaded for each scene
@@ -66,7 +69,7 @@ namespace OpenChatbag
 		{
 			Scenes.Remove(scene);
 			
-			scene.EventManager.OnClientMovement -= PositionTracker.UpdatePosition;
+			//scene.EventManager.OnClientMovement -= positionTracker.UpdatePosition;
 		}
 
 		// runs post-termination

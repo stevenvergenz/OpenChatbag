@@ -10,8 +10,8 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>OpenChatbag</RootNamespace>
     <AssemblyName>OpenChatbag</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -31,36 +31,36 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net">
-      <HintPath>lib\net 3.5\log4net.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Addins">
-      <HintPath>lib\net 3.5\Mono.Addins.dll</HintPath>
-    </Reference>
-    <Reference Include="Nini">
-      <HintPath>lib\net 3.5\Nini.dll</HintPath>
-    </Reference>
-    <Reference Include="OpenMetaverse">
-      <HintPath>lib\net 3.5\OpenMetaverse.dll</HintPath>
-    </Reference>
-    <Reference Include="OpenMetaverseTypes">
-      <HintPath>lib\net 3.5\OpenMetaverseTypes.dll</HintPath>
-    </Reference>
-    <Reference Include="OpenSim.Framework">
-      <HintPath>lib\net 3.5\OpenSim.Framework.dll</HintPath>
-    </Reference>
-    <Reference Include="OpenSim.Region.CoreModules">
-      <HintPath>lib\net 3.5\OpenSim.Region.CoreModules.dll</HintPath>
-    </Reference>
-    <Reference Include="OpenSim.Region.Framework">
-      <HintPath>lib\net 3.5\OpenSim.Region.Framework.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="log4net">
+      <HintPath>lib\mono\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Addins">
+      <HintPath>lib\mono\Mono.Addins.dll</HintPath>
+    </Reference>
+    <Reference Include="Nini">
+      <HintPath>lib\mono\Nini.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenMetaverse">
+      <HintPath>lib\mono\OpenMetaverse.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenMetaverseTypes">
+      <HintPath>lib\mono\OpenMetaverseTypes.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenSim.Framework">
+      <HintPath>lib\mono\OpenSim.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenSim.Region.CoreModules">
+      <HintPath>lib\mono\OpenSim.Region.CoreModules.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenSim.Region.Framework">
+      <HintPath>lib\mono\OpenSim.Region.Framework.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChatHandler.cs" />
