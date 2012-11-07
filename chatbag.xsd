@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+		targetNamespace="https://github.com/stevenvergenz/OpenChatbag"
+		xmlns="https://github.com/stevenvergenz/OpenChatbag"
+		elementFormDefault="qualified">
+
+	
+	<!-- types -->
+	
+	<xs:simpleType name="scopeType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="global"/>
+			<xs:enumeration value="region"/>
+			<xs:enumeration value="parcel"/>
+			<xs:enumeration value="local"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:simpleType name="uuidType">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:simpleType name="coordType">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[0-9]+\.[0-9]+(?:,[0-9]+\.[0-9]+){2}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:simpleType name="selectionType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="random"/>
+			<xs:enumeration value="sequential"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:simpleType name="triggerType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="chat"/>
+			<xs:enumeration value="proximity"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	
+	<!-- chatbag types -->
+	
+	<xs:complexType name="chatbagType">
+		<xs:sequence>
+			<xs:element ref="interaction" minOccurs="1" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="name" type="xs:string" default="unknown"/>
+	</xs:complexType>
+	
+	<xs:complexType name="uuidChatbagType">
+		<xs:extension base="chatbagType">
+			<xs:attribute name="uuid" type="uuidType" use="required"/>
+		</xs:extension>
+	</xs:complexType>
+	
+	<xs:complexType name="coordChatbagType">
+		<xs:extension base="chatbagType">
+			<xs:attribute name="position" type="coordType" use="required"/>
+		</xs:extension>
+	</xs:complexType>
+	
+	
+	<!-- simple elements -->
+	
+	<xs:element name="response" type="xs:string"/>
+	
+	
+	<!-- complex elements -->
+	
+	<xs:element name="config">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="globalChatbag" minOccurs="1" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="globalChatbag" type="chatbagType"/>
+	<xs:element name="regionChatbag" type="uuidChatbagType" substitutionGroup="globalChatbag"/>
+	<xs:element name="parcelChatbag" type="uuidChatbagType" substitutionGroup="globalChatbag"/>
+	<xs:element name="primChatbag" type="uuidChatbagType" substitutionGroup="globalChatbag"/>
+	<xs:element name="locationChatbag" type="coordChatbagType" substitutionGroup="globalChatbag"/>
+	
+	<xs:element name="interaction">
+		<xs:complexType>
+			<xs:all>
+				<xs:element ref="triggers"/>
+				<xs:element ref="responses"/>
+			</xs:all>
+			<xs:attribute name="name" type="xs:string" default="unknown"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="triggers">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="fields" minOccurs="0" maxOccurs="1"/>
+				<xs:element ref="trigger" minOccurs="1" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="fields">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="field" minOccurs="1" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="field">
+		<xs:complexType>
+			<xs:attribute name="key" type="xs:string" use="required"/>
+			<xs:attribute name="regex" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="trigger">
+		<xs:complexType>
+			<xs:attribute name="type" type="triggerType" use="required"/>
+			<xs:attribute name="value" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="responses">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="response" minOccurs="1" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<xs:attribute name="selectionMode" type="selectionType" default="random"/>
+		</xs:complexType>
+	</xs:element>
+	
+</xs:schema>

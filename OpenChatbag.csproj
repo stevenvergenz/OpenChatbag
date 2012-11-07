@@ -8,8 +8,8 @@
     <ProjectGuid>{EE3C0AC0-BA71-47DB-B3F8-59204C4E79F9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>HybridChatbot</RootNamespace>
-    <AssemblyName>HybridChatbot</AssemblyName>
+    <RootNamespace>OpenChatbag</RootNamespace>
+    <AssemblyName>OpenChatbag</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -67,6 +67,7 @@
     <Compile Include="OpenChatbagModule.cs" />
     <Compile Include="PositionTracker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ConfigParser.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -78,5 +79,6 @@
   -->
   <ItemGroup>
     <None Include="chatbag.xml" />
+    <None Include="chatbag.xsd" />
   </ItemGroup>
 </Project>
