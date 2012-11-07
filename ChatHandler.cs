@@ -34,7 +34,8 @@ namespace OpenChatbag
 
 		#endregion
 
-
+		#region command registration
+		
 		public void RegisterCommand(string command, ChatHandlerDelegate handler)
 		{
 			if (commandList.ContainsKey(command))
@@ -42,6 +43,12 @@ namespace OpenChatbag
 			else
 				commandList.Add(command, handler);
 		}
+		public void DeregisterCommand(string command){
+			if( commandList.ContainsKey(command) ){
+				commandList.Remove(command);
+			}
+		}
+		
 		public void RegisterField(string fieldKey, ValidationDelegate validator)
 		{
 			if (fieldValidateList.ContainsKey(fieldKey))
@@ -49,6 +56,13 @@ namespace OpenChatbag
 			else
 				fieldValidateList.Add(fieldKey, validator);
 		}
+		public void DeregisterField(string fieldKey){
+			if( fieldValidateList.ContainsKey(fieldKey) ){
+				fieldValidateList.Remove(fieldKey);
+			}
+		}
+		
+		#endregion
 		
 		public void ProcessCommand(string msg)
 		{

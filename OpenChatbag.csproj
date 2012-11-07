@@ -76,4 +76,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <None Include="chatbag.xml" />
+  </ItemGroup>
 </Project>
