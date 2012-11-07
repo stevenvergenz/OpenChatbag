@@ -1,10 +1,11 @@
 using System;
+using System.Collections.Generic;
 
 namespace OpenChatbag
 {
-	public class ConfigParser
+	public static class ConfigParser
 	{
-		public ConfigParser()
+		public static List<Chatbag> Parse(string filename)
 		{
 			
 		}

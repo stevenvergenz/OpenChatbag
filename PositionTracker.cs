@@ -9,99 +9,64 @@ using System.Reflection;
 using OpenMetaverse;
 using OpenSim.Region.Framework.Scenes;
 
+
 namespace OpenChatbag
 {
-	public class PositionTracker
+	public class PositionState
 	{
-		private readonly ILog os_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-		
-		public UUID Target;
-		public Vector3 Position { get; protected set; }
-		public Vector3 Orientation { get; protected set; }
+		public UUID Target { get; protected set; }
+		public Vector3 Position { get; set; }
+		public Vector3 Orientation { get; set; }
 
-		protected PositionTracker(UUID target)
+		public PositionState(UUID target)
 		{
 			Target = target;
 			Position = new Vector3();
 			Orientation = new Vector3();
 		}
-
-		/*public override void Start()
-		{
-			foreach (Scene s in OpenChatbagModule.Scenes)
-			{
-				os_log.InfoFormat("[GIFT]: Registering listener with {0}", s.RegionInfo.RegionName);
-				s.EventManager.OnClientMovement += UpdatePosition;
-
-				ScenePresence presence = s.GetScenePresence(Parent.AvatarID);
-				if (presence != null)
-				{
-					// transform region coordinates to globals
-					Vector3 pos = Position;
-					Vector3 rot = Orientation;
-					pos.X = s.RegionInfo.RegionLocX * 256 + presence.AbsolutePosition.X;
-					pos.Y = s.RegionInfo.RegionLocY * 256 + presence.AbsolutePosition.Y;
-					presence.Rotation.GetEulerAngles(out rot.X, out rot.Y, out rot.Z);
-					Position = pos;
-					Orientation = rot;
-				}
-			}
-
-			ChatHandlerDelegate positionQuery = delegate(List<string> a){
-				Parent.chatHandler.SendMessageToAvatar(String.Format("Your coordinates are {0}", Position.ToString()));
-			};
-
-			Parent.chatHandler.RegisterCommand("where_i", positionQuery);
-			Parent.chatHandler.RegisterCommand("what_location|position", positionQuery);
-			Parent.chatHandler.RegisterCommand("stop_tracking", delegate(List<string> a) { Stop(); });
-
-			Parent.chatHandler.SendMessageToAvatar("Okay, we're on the clock. Let's get to work!");
-			
-			base.Start();
-		}*/
-
+	}
+	
+	public class PositionTracker
+	{
+		private Dictionary<UUID, PositionState> TrackerMap;
 		
-		#region Static Tracker 
-		
-		private static Dictionary<UUID, PositionTracker> TrackerMap;
-		
-		static PositionTracker(){
-			TrackerMap = new Dictionary<UUID, PositionTracker>();
+		public PositionTracker(){
+			TrackerMap = new Dictionary<UUID, PositionState>();
 		}
 		
-		public static PositionTracker addTracker(UUID target)
+		public PositionState addTracker(UUID target)
 		{
-			if( PositionTracker.TrackerMap.ContainsKey(target) )
-				return PositionTracker.TrackerMap[target];
+			if( TrackerMap.ContainsKey(target) )
+				return TrackerMap[target];
 			else {
-				PositionTracker tracker = new PositionTracker(target);
-				PositionTracker.TrackerMap.Add(target, tracker);
+				PositionState tracker = new PositionState(target);
+				TrackerMap.Add(target, tracker);
 				return tracker;
 			}
 		}
-		public static PositionTracker addTracker(PositionTracker tracker)
+		public PositionState addTracker(PositionState tracker)
 		{
-			if( tracker != null && !PositionTracker.TrackerMap.ContainsKey( tracker.Target ) ){
-				PositionTracker.TrackerMap.Add( tracker.Target, tracker );
+			if( tracker != null && !TrackerMap.ContainsKey( tracker.Target ) ){
+				TrackerMap.Add( tracker.Target, tracker );
 			}
-			else return tracker;
+			return tracker;
 		}
 		
-		public static bool removeTracker(UUID target)
+		public bool removeTracker(UUID target)
 		{
-			if( PositionTracker.TrackerMap.ContainsKey(target) ){
-				PositionTracker.TrackerMap.Remove(target);
+			if( TrackerMap.ContainsKey(target) ){
+				TrackerMap.Remove(target);
 				return true;
 			}
 			else return false;
 		}
 		
-		public static void UpdatePosition(ScenePresence client)
+		public void UpdatePosition(ScenePresence client)
 		{
-			if (PositionTracker.TrackerMap.ContainsKey(client.UUID))
+			if (TrackerMap.ContainsKey(client.UUID))
 			{
 				// transform region coordinates to globals
-				PositionTracker tracker = PositionTracker.TrackerMap[client.UUID];
+				PositionState tracker = TrackerMap[client.UUID];
 				Vector3 pos = tracker.Position;
 				Vector3 rot = tracker.Orientation;
 				
@@ -113,6 +78,5 @@ namespace OpenChatbag
 			}
 		}
 		
-		#endregion
 	}
 }

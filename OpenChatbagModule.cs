@@ -51,6 +51,8 @@ namespace OpenChatbag
 		public void AddRegion(Scene scene)
 		{
 			Scenes.Add(scene);
+			
+			scene.EventManager.OnClientMovement += PositionTracker.UpdatePosition;
 		}
 
 		// runs after all modules have been loaded for each scene
@@ -63,6 +65,8 @@ namespace OpenChatbag
 		public void RemoveRegion(Scene scene)
 		{
 			Scenes.Remove(scene);
+			
+			scene.EventManager.OnClientMovement -= PositionTracker.UpdatePosition;
 		}
 
 		// runs post-termination
