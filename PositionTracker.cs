@@ -15,23 +15,32 @@ namespace OpenChatbag
 	{
 		public UUID Target { get; protected set; }
 		public Vector3 Position { get; set; }
-		public Vector3 Orientation { get; set; }
 
 		public PositionState(UUID target)
 		{
 			Target = target;
 			Position = new Vector3();
-			Orientation = new Vector3();
 		}
 	}
 	
 	public class PositionTracker
 	{
-		private Dictionary<UUID, PositionState> TrackerMap;
-		
-		public PositionTracker(){
+		#region singleton handling
+		public static PositionTracker instance;
+		private PositionTracker() {
 			TrackerMap = new Dictionary<UUID, PositionState>();
 		}
+		public static PositionTracker Instance {
+			get {
+				if (instance == null){
+					instance = new PositionTracker();
+				}
+				return instance;
+			}
+		}
+		#endregion
+
+		private Dictionary<UUID, PositionState> TrackerMap;
 		
 		public PositionState addTracker(UUID target)
 		{
@@ -67,13 +76,9 @@ namespace OpenChatbag
 				// transform region coordinates to globals
 				PositionState tracker = TrackerMap[client.UUID];
 				Vector3 pos = tracker.Position;
-				Vector3 rot = tracker.Orientation;
-				
 				pos.X = client.Scene.RegionInfo.RegionLocX * 256 + client.AbsolutePosition.X;
 				pos.Y = client.Scene.RegionInfo.RegionLocY * 256 + client.AbsolutePosition.Y;
-				
 				tracker.Position = pos;
-				tracker.Orientation = rot;
 			}
 		}
 		

@@ -1,33 +1,30 @@
 using System;
+using System.Collections.Generic;
+
 using OpenMetaverse;
 using OpenSim.Region.Framework.Scenes;
 
+
 namespace OpenChatbag
 {
-	public class Chatbag
+	public abstract class Chatbag
 	{
-		public UUID Target { get; protected set; }
-		public PositionState targetState { get; protected set; }
-		public ChatHandler Handler { get; protected set; }
-		
-		public Chatbag()
+		public string Name { get; set; }
+		public List<Trigger> TriggerList { get; protected set; }
+
+		public Chatbag(string name)
 		{
-			Handler = new ChatHandler();
-			Target = UUID.Zero;
+			Name = name;
+			TriggerList = new List<Trigger>();
 		}
-		
-		public Chatbag(UUID target, PositionTracker tracker)
+	}
+
+	public class GlobalChatbag : Chatbag
+	{
+		public GlobalChatbag(string name)
+			: base(name)
 		{
-			Handler = new ChatHandler();
-			Target = target;
-			if( target != UUID.Zero ){
-				targetState = tracker.addTracker(target);
-			}
-		}
-		
-		public void CheckProximityTriggers( ScenePresence presence )
-		{
-			
+
 		}
 	}
 }
