@@ -6,7 +6,7 @@
 		xsi:schemaLocation="https://github.com/stevenvergenz/OpenChatbag chatbag.xsd">
 	
 	<!-- Global scope requires no additional parameters. Will apply to all loaded regions.
-	     Regional scope requires the region uuid as an attribute. The chatbag will respond anywhere in the region.
+	     Region scope requires the region uuid as an attribute. The chatbag will respond anywhere in the region.
 	     Parcel scope requires the parcel uuid as an attribute. The chatbag will respond anywhere in the parcel.
 	     Local scope requires one of the prim or location attributes. Specifies a prim or position to center the interactions on.
 	-->
@@ -23,17 +23,17 @@
 				<!-- 0 or 1 -->
 				<fields>
 					<!-- 1 or more -->
-					<field key="ip" regex="(?:[0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])(?:\.(?:[0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])){3}" />
+					<field key="ip" regex="(?:[0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])(?:\.(?:[0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])){3}"/>
 				</fields>
 				
 				<!-- 1 or more -->
-				<trigger type="chat" value="hi|hello" />
-				<trigger type="chat" value="is_ip_{ip}" />
-				<trigger type="proximity" value="5m" />
+				<chatTrigger channel="543" phrase="hi|hello"/>
+				<chatTrigger channel="0" phrase="is_ip_{ip}"/>
+				<proximityTrigger/>
 			</triggers>
 			
 			<!-- exactly 1 -->
-			<responses>
+			<responses selectionMode="random">
 				
 				<!-- 1 or more -->
 				<response>Welcome to the wonderful world of OpenSim!</response>

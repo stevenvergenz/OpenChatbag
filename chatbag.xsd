@@ -36,13 +36,6 @@
 		</xs:restriction>
 	</xs:simpleType>
 	
-	<xs:simpleType name="triggerType">
-		<xs:restriction base="xs:string">
-			<xs:enumeration value="chat"/>
-			<xs:enumeration value="proximity"/>
-		</xs:restriction>
-	</xs:simpleType>
-	
 	
 	<!-- chatbag types -->
 	
@@ -54,21 +47,46 @@
 	</xs:complexType>
 	
 	<xs:complexType name="uuidChatbagType">
-		<xs:extension base="chatbagType">
-			<xs:attribute name="uuid" type="uuidType" use="required"/>
-		</xs:extension>
+		<xs:complexContent>
+			<xs:extension base="chatbagType">
+				<xs:attribute name="uuid" type="uuidType" use="required"/>
+			</xs:extension>
+		</xs:complexContent>
 	</xs:complexType>
 	
 	<xs:complexType name="coordChatbagType">
-		<xs:extension base="chatbagType">
-			<xs:attribute name="position" type="coordType" use="required"/>
-		</xs:extension>
+		<xs:complexContent>
+			<xs:extension base="chatbagType">
+				<xs:attribute name="position" type="coordType" use="required"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	
+	<!-- trigger types -->
+	
+	<xs:complexType name="triggerType"/>
+	
+	<xs:complexType name="chatTriggerType">
+		<xs:complexContent>
+			<xs:extension base="triggerType">
+				<xs:attribute name="channel" type="xs:int" default="0"/>
+				<xs:attribute name="phrase" type="xs:string" use="required"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="proximityTriggerType">
+		<xs:complexContent>
+			<xs:extension base="triggerType">
+				<xs:attribute name="range" type="xs:integer" default="5"/>
+			</xs:extension>
+		</xs:complexContent>
 	</xs:complexType>
 	
 	
 	<!-- simple elements -->
 	
-	<xs:element name="response" type="xs:string"/>
 	
 	
 	<!-- complex elements -->
@@ -121,12 +139,9 @@
 		</xs:complexType>
 	</xs:element>
 	
-	<xs:element name="trigger">
-		<xs:complexType>
-			<xs:attribute name="type" type="triggerType" use="required"/>
-			<xs:attribute name="value" type="xs:string" use="required"/>
-		</xs:complexType>
-	</xs:element>
+	<xs:element name="trigger" type="triggerType"/>
+	<xs:element name="chatTrigger" type="chatTriggerType" substitutionGroup="trigger"/>
+	<xs:element name="proximityTrigger" type="proximityTriggerType" substitutionGroup="trigger"/>
 	
 	<xs:element name="responses">
 		<xs:complexType>
@@ -136,5 +151,12 @@
 			<xs:attribute name="selectionMode" type="selectionType" default="random"/>
 		</xs:complexType>
 	</xs:element>
+	
+	<xs:element name="response">
+		<xs:complexType>
+			<xs:attribute name="channel" type="xs:int" default="0"/>
+		</xs:complexType>
+	</xs:element>
+	
 	
 </xs:schema>
