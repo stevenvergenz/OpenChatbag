@@ -10,12 +10,12 @@ namespace OpenChatbag
 	public abstract class Chatbag
 	{
 		public string Name { get; set; }
-		public List<Trigger> TriggerList { get; protected set; }
+		public List<Interaction> InteractionList { get; protected set; }
 
 		public Chatbag(string name)
 		{
 			Name = name;
-			TriggerList = new List<Trigger>();
+			InteractionList = new List<Interaction>();
 		}
 	}
 

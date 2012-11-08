@@ -7,14 +7,14 @@ namespace OpenChatbag
 {
 	public static class ConfigParser
 	{
-		public static List<Chatbag> Parse(string filename)
+		public static List<Chatbag> Parse()
 		{
 			XmlReaderSettings readerSettings = new XmlReaderSettings();
 			readerSettings.IgnoreComments = true;
 			readerSettings.IgnoreWhitespace = true;
 			readerSettings.ValidationType = ValidationType.Schema;
-			XmlSchema schema = readerSettings.Schemas.Add("https://github.com/stevenvergenz/OpenChatbag","..\\..\\..\\chatbag.xsd");
-			XmlReader reader = XmlReader.Create(filename, readerSettings);
+			XmlSchema schema = readerSettings.Schemas.Add("https://github.com/stevenvergenz/OpenChatbag","chatbag.xsd");
+			XmlReader reader = XmlReader.Create("chatbag.xml", readerSettings);
 
 			reader.MoveToContent();
 			reader.ReadStartElement("config");
@@ -58,25 +58,25 @@ namespace OpenChatbag
 					while (reader.IsStartElement() && triggerTypes.Contains(reader.Name))
 					{
 						Console.Out.WriteLine(reader.Name);
-						reader.ReadStartElement();
+						reader.ReadStartElement(); // read trigger
 					}
 
-					reader.ReadEndElement(); // triggers
+					reader.ReadEndElement(); // end triggers
 
-					reader.ReadStartElement("responses"); // responses
+					reader.ReadStartElement("responses"); // read responses
 					while (reader.IsStartElement("response"))
 					{
 						int channel = int.Parse(reader.GetAttribute("channel"));
-						reader.ReadStartElement(); // response
+						reader.ReadStartElement(); // read response
 						Console.Out.WriteLine(channel.ToString() + " " + reader.ReadString());
-						reader.ReadEndElement(); // response
+						reader.ReadEndElement(); // end response
 						
 					}
-					reader.ReadEndElement(); // responses
-					reader.ReadEndElement(); // interaction
+					reader.ReadEndElement(); // end responses
+					reader.ReadEndElement(); // end interaction
 				}
 
-				reader.ReadEndElement(); // chatbag
+				reader.ReadEndElement(); // end chatbag
 			}
 			
 			return null;
