@@ -81,7 +81,9 @@
   </Target>
   -->
   <ItemGroup>
-    <None Include="chatbag.xml" />
+    <None Include="chatbag.xml">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="chatbag.xsd" />
   </ItemGroup>
 </Project>

@@ -23,10 +23,6 @@
 		</xs:restriction>
 	</xs:simpleType>
 	
-	<xs:simpleType name="coordType">
-		<xs:list itemType="xs:decimal"/>
-	</xs:simpleType>
-	
 	<xs:simpleType name="selectionType">
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="random"/>
@@ -51,15 +47,7 @@
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
-	
-	<xs:complexType name="coordChatbagType">
-		<xs:complexContent>
-			<xs:extension base="chatbagType">
-				<xs:attribute name="position" type="coordType" use="required"/>
-			</xs:extension>
-		</xs:complexContent>
-	</xs:complexType>
-	
+
 	
 	<!-- trigger types -->
 	
@@ -101,7 +89,6 @@
 	<xs:element name="regionChatbag" type="uuidChatbagType" substitutionGroup="globalChatbag"/>
 	<xs:element name="parcelChatbag" type="uuidChatbagType" substitutionGroup="globalChatbag"/>
 	<xs:element name="primChatbag" type="uuidChatbagType" substitutionGroup="globalChatbag"/>
-	<xs:element name="locationChatbag" type="coordChatbagType" substitutionGroup="globalChatbag"/>
 	
 	<xs:element name="interaction">
 		<xs:complexType>

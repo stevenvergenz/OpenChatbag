@@ -7,14 +7,15 @@ namespace OpenChatbag
 {
 	public static class ConfigParser
 	{
-		public static List<Chatbag> Parse()
+		public static List<Chatbag> Parse(string filename, string schemaname)
 		{
 			XmlReaderSettings readerSettings = new XmlReaderSettings();
 			readerSettings.IgnoreComments = true;
 			readerSettings.IgnoreWhitespace = true;
 			readerSettings.ValidationType = ValidationType.Schema;
-			XmlSchema schema = readerSettings.Schemas.Add("https://github.com/stevenvergenz/OpenChatbag","chatbag.xsd");
-			XmlReader reader = XmlReader.Create("chatbag.xml", readerSettings);
+			XmlSchema schema = readerSettings.Schemas.Add("https://github.com/stevenvergenz/OpenChatbag",schemaname);
+			XmlReader reader = XmlReader.Create(filename, readerSettings);
+			List<Chatbag> ret = new List<Chatbag>();
 
 			reader.MoveToContent();
 			reader.ReadStartElement("config");
@@ -26,9 +27,7 @@ namespace OpenChatbag
 			{
 				// read Chatbag object
 				Chatbag chatbag;
-				string bagType = reader.Name;
-				if (bagType == "globalChatbag")
-				{
+				if (reader.Name == "globalChatbag"){
 					chatbag = new GlobalChatbag(reader.GetAttribute("name"));
 				}
 				else throw new XmlException("Invalid Chatbag type");
@@ -38,6 +37,7 @@ namespace OpenChatbag
 				while (reader.IsStartElement("interaction"))
 				{
 					reader.ReadStartElement("interaction");
+					Interaction i = new Interaction();
 
 					reader.ReadStartElement("triggers");
 					if (reader.Name == "fields")
@@ -57,7 +57,18 @@ namespace OpenChatbag
 					});
 					while (reader.IsStartElement() && triggerTypes.Contains(reader.Name))
 					{
-						Console.Out.WriteLine(reader.Name);
+						ITrigger t = null;
+						if (reader.Name == triggerTypes[0]) // chatTrigger
+						{
+							t = new ChatTrigger(reader.GetAttribute("phrase"), 
+								int.Parse(reader.GetAttribute("channel")));
+						}
+						else if (reader.Name == triggerTypes[1]) // proximityTrigger
+						{
+							t = new ProximityTrigger(float.Parse(reader.GetAttribute("range")));
+						}
+						
+						i.triggerList += t;
 						reader.ReadStartElement(); // read trigger
 					}
 
@@ -68,18 +79,22 @@ namespace OpenChatbag
 					{
 						int channel = int.Parse(reader.GetAttribute("channel"));
 						reader.ReadStartElement(); // read response
-						Console.Out.WriteLine(channel.ToString() + " " + reader.ReadString());
+
+						Interaction.Response r = new Interaction.Response(channel, reader.ReadString());
 						reader.ReadEndElement(); // end response
-						
+						i.responses.Add(r);
 					}
 					reader.ReadEndElement(); // end responses
 					reader.ReadEndElement(); // end interaction
+					chatbag.InteractionList.Add(i);
 				}
 
 				reader.ReadEndElement(); // end chatbag
+				ret.Add(chatbag);
+				chatbag.AfterInteractionsSet();
 			}
 			
-			return null;
+			return ret;
 		}
 	}
 }

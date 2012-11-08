@@ -25,12 +25,16 @@ namespace OpenChatbag
 	public class OpenChatbagModule : ISharedRegionModule
 	{
 		#region Module Properties
+
 		private readonly ILog os_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 		public static List<Scene> Scenes;
 
 		public string Name { get { return "OpenChatbagModule"; } }
 		public bool IsSharedModule { get { return true; } }
 		public Type ReplaceableInterface { get { return null; } }
+
+		public List<Chatbag> chatbags;
+
 		#endregion
 
 		#region Module Handles
@@ -38,6 +42,7 @@ namespace OpenChatbag
 		public void Initialise(IConfigSource source)
 		{
 			os_log.Debug("[OpenChatbag]: Initializing.");
+			chatbags = ConfigParser.Parse("chatbag.xml", "chatbag.xsd");
 			Scenes = new List<Scene>();
 		}
 
@@ -52,7 +57,8 @@ namespace OpenChatbag
 		{
 			Scenes.Add(scene);
 			
-			scene.EventManager.OnClientMovement += PositionTracker.Instance.UpdatePosition;
+			scene.EventManager.OnClientMovement += PositionTracker.Instance.UpdateAvatarPosition;
+			scene.EventManager.OnSceneObjectPartUpdated += PositionTracker.Instance.UpdatePrimPosition;
 		}
 
 		// runs after all modules have been loaded for each scene
@@ -66,7 +72,8 @@ namespace OpenChatbag
 		{
 			Scenes.Remove(scene);
 			
-			scene.EventManager.OnClientMovement -= PositionTracker.Instance.UpdatePosition;
+			scene.EventManager.OnClientMovement -= PositionTracker.Instance.UpdateAvatarPosition;
+			scene.EventManager.OnSceneObjectPartUpdated -= PositionTracker.Instance.UpdatePrimPosition;
 		}
 
 		// runs post-termination
