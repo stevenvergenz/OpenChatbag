@@ -98,6 +98,9 @@ namespace OpenChatbag
 			else {
 				PositionState tracker = new PositionState(target);
 				TrackerMap.Add(target, tracker);
+				string type = "derp";
+				if( tracker.Type == PositionState.TargetType.Region ) type = "Region";
+				OpenChatbagModule.os_log.Debug("[Chatbag]: Adding new tracker of type " + type);
 				return tracker;
 			}
 		}
@@ -163,6 +166,7 @@ namespace OpenChatbag
 						if (poi.Target == client.Scene.RegionInfo.RegionID
 							&& !poi.NearbyAvatars[0].Contains(client.UUID))
 						{
+							OpenChatbagModule.os_log.Debug("[Chatbag]: Movement into region " + poi.Target);
 							poi.NearbyAvatars[0].Add(client.UUID);
 							poi.TriggerOnRangeChange(0);
 						}
@@ -180,14 +184,16 @@ namespace OpenChatbag
 		{
 			if (TrackerMap.ContainsKey(sop.UUID))
 			{
+				OpenChatbagModule.os_log.DebugFormat("[Chatbag]: Updating location of {0}", sop.UUID.ToString());
 				// transform region coordinates to globals
 				PositionState tracker = TrackerMap[sop.UUID];
 				lock (tracker)
 				{
 					tracker.Position = ToGlobalCoordinates(sop.ParentGroup.Scene.RegionInfo, sop.AbsolutePosition);
 					Dictionary<float, bool> sendUpdate = new Dictionary<float, bool>();
-
+					
 					foreach (ScenePresence presence in sop.ParentGroup.Scene.GetScenePresences())
+					//sop.ParentGroup.Scene.SceneGraph.ForEachAvatar( new Action<ScenePresence>( presence =>
 					{
 						Vector3 coord = ToGlobalCoordinates(sop.ParentGroup.Scene.RegionInfo, sop.AbsolutePosition);
 						float range = Vector3.Distance(coord, tracker.Position);

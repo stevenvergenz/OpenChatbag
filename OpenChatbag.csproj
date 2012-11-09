@@ -30,37 +30,48 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
+  </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\mono\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Addins, Version=0.5.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\mono\Mono.Addins.dll</HintPath>
+    </Reference>
+    <Reference Include="Nini, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\mono\Nini.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenMetaverse, Version=0.0.0.39674, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\mono\OpenMetaverse.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenMetaverseTypes, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\mono\OpenMetaverseTypes.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenSim.Framework, Version=0.6.5.26208, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\mono\OpenSim.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenSim.Region.CoreModules, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\mono\OpenSim.Region.CoreModules.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenSim.Region.Framework, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\mono\OpenSim.Region.Framework.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="log4net">
-      <HintPath>lib\mono\log4net.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Addins">
-      <HintPath>lib\mono\Mono.Addins.dll</HintPath>
-    </Reference>
-    <Reference Include="Nini">
-      <HintPath>lib\mono\Nini.dll</HintPath>
-    </Reference>
-    <Reference Include="OpenMetaverse">
-      <HintPath>lib\mono\OpenMetaverse.dll</HintPath>
-    </Reference>
-    <Reference Include="OpenMetaverseTypes">
-      <HintPath>lib\mono\OpenMetaverseTypes.dll</HintPath>
-    </Reference>
-    <Reference Include="OpenSim.Framework">
-      <HintPath>lib\mono\OpenSim.Framework.dll</HintPath>
-    </Reference>
-    <Reference Include="OpenSim.Region.CoreModules">
-      <HintPath>lib\mono\OpenSim.Region.CoreModules.dll</HintPath>
-    </Reference>
-    <Reference Include="OpenSim.Region.Framework">
-      <HintPath>lib\mono\OpenSim.Region.Framework.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChatHandler.cs" />
@@ -86,4 +97,7 @@
     </None>
     <None Include="chatbag.xsd" />
   </ItemGroup>
+  <PropertyGroup>
+    <PostBuildEvent>copy $(TargetPath) $(ProjectDir)..\opensim\bin\$(TargetFileName)</PostBuildEvent>
+  </PropertyGroup>
 </Project>

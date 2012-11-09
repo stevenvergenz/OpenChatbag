@@ -14,9 +14,6 @@ namespace OpenChatbag
 		public List<Interaction> InteractionList { get; protected set; }
 		public PositionState physicalState;
 
-		// abstract methods
-		public abstract void Register(List<Scene> scenes);
-
 		#region implementation
 		public Chatbag(string name)
 		{
@@ -29,27 +26,32 @@ namespace OpenChatbag
 			physicalState.OnRangeChange += ProcessRangeChange;	
 		}
 
-		public void AfterInteractionsSet()
+		public virtual void AfterInteractionsSet()
 		{
-			float max = 0;
+
+		}
+
+		public virtual void ProcessChat(object sender, OSChatMessage msg)
+		{
+
+		}
+
+		public virtual void ProcessRangeChange(PositionState state, float range)
+		{
+			OpenChatbagModule.os_log.Debug("[Chatbag]: Checking range change");
 			foreach (Interaction i in InteractionList)
 			{
-				if (i.MaxRange > max) max = i.MaxRange;
+				if(i.triggerList.GetTriggers(typeof(ProximityTrigger)).Count != 0)
+				{
+					OpenChatbagModule.os_log.DebugFormat("[Chatbag]: Triggering interaction {0}", i.Name);
+					Interaction.Response response = i.GetResponse();
+					ChatHandler.SendMessageToWorld(Name, physicalState.Target, response.Channel, response.Text);
+				}
 			}
-			physicalState.NearbyRadii.Add(max);
-		}
-
-		public void ProcessChat(object sender, OSChatMessage msg)
-		{
-
-		}
-
-		public void ProcessRangeChange(PositionState state, float range)
-		{
-
 		}
 		#endregion
 	}
+
 
 	public class GlobalChatbag : Chatbag
 	{
@@ -59,9 +61,38 @@ namespace OpenChatbag
 
 		}
 
-		public override void Register(List<Scene> scenes)
+	}
+
+
+	public class RegionChatbag : Chatbag
+	{
+		public RegionChatbag(string name, UUID uuid)
+			: base(name, uuid)
 		{
-			
+
+		}
+	}
+
+	public class PrimChatbag : Chatbag
+	{
+		public PrimChatbag(string name)
+			: base(name)
+		{
+
+		}
+
+		public override void AfterInteractionsSet()
+		{
+			foreach (Interaction i in InteractionList)
+			{
+				foreach (ProximityTrigger trig in i.triggerList.GetTriggers(typeof(ProximityTrigger)))
+				{
+					if (!physicalState.NearbyRadii.Contains(trig.Range))
+					{
+						physicalState.NearbyRadii.Add(trig.Range);
+					}
+				}
+			}
 		}
 	}
 }

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Schema;
 
+using OpenMetaverse;
+
 namespace OpenChatbag
 {
 	public static class ConfigParser
@@ -30,14 +32,18 @@ namespace OpenChatbag
 				if (reader.Name == "globalChatbag"){
 					chatbag = new GlobalChatbag(reader.GetAttribute("name"));
 				}
+				else if (reader.Name == "regionChatbag")
+				{
+					chatbag = new RegionChatbag(reader.GetAttribute("name"), UUID.Parse(reader.GetAttribute("uuid")));
+				}
 				else throw new XmlException("Invalid Chatbag type");
 				reader.ReadStartElement();
 
 				// read list of interactions
 				while (reader.IsStartElement("interaction"))
 				{
+					Interaction i = new Interaction( reader.GetAttribute("name") );
 					reader.ReadStartElement("interaction");
-					Interaction i = new Interaction();
 
 					reader.ReadStartElement("triggers");
 					if (reader.Name == "fields")
@@ -78,9 +84,12 @@ namespace OpenChatbag
 					while (reader.IsStartElement("response"))
 					{
 						int channel = int.Parse(reader.GetAttribute("channel"));
+						Interaction.VolumeType volume =
+							//Interaction.Response.ParseVolume(reader.GetAttribute(0));
+							Interaction.Response.ParseVolume(reader.GetAttribute("volume"));
 						reader.ReadStartElement(); // read response
 
-						Interaction.Response r = new Interaction.Response(channel, reader.ReadString());
+						Interaction.Response r = new Interaction.Response(channel, volume, reader.ReadString());
 						reader.ReadEndElement(); // end response
 						i.responses.Add(r);
 					}

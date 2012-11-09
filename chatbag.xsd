@@ -29,7 +29,16 @@
 			<xs:enumeration value="sequential"/>
 		</xs:restriction>
 	</xs:simpleType>
-	
+
+  <xs:simpleType name="volumeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="global"/>
+      <xs:enumeration value="region"/>
+      <xs:enumeration value="shout"/>
+      <xs:enumeration value="say"/>
+      <xs:enumeration value="whisper"/>
+    </xs:restriction>
+  </xs:simpleType>
 	
 	<!-- chatbag types -->
 	
@@ -142,6 +151,7 @@
       <xs:simpleContent>
         <xs:extension base="xs:string">
           <xs:attribute name="channel" type="xs:int" default="0"/>
+          <xs:attribute name="volume" type="volumeType" default="say"/>
         </xs:extension>
       </xs:simpleContent>
 		</xs:complexType>

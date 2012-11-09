@@ -36,7 +36,7 @@
 			<responses selectionMode="random">
 				
 				<!-- 1 or more -->
-				<response>Welcome to the wonderful world of OpenSim!</response>
+				<response volume="say">Welcome to the wonderful world of OpenSim!</response>
 				
 			</responses>
 			

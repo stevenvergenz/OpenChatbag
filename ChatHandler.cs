@@ -17,8 +17,6 @@ namespace OpenChatbag
 
 	public class ChatHandler
 	{
-		public static string ChatHandle = "[Chatbag]";
-		
 		Dictionary<string, ChatHandlerDelegate> commandList;
 		Dictionary<string, ValidationDelegate> fieldValidateList;
 		
@@ -207,14 +205,37 @@ namespace OpenChatbag
 		}
 
 		#region outgoing chat functions
-		public static void SendMessageToWorld(int channel, string message)
+		public static void SendMessageToPrim(UUID prim, string senderName, int channel, string message)
+		{
+
+		}
+
+		public static void SendMessageToParcel(UUID parcelId, string senderName, int channel, string message)
+		{
+
+		}
+
+		public static void SendMessageToRegion(UUID regionId, string senderName, int channel, string message)
+		{
+			foreach (Scene s in OpenChatbagModule.Scenes)
+			{
+				if (s.RegionInfo.RegionID == regionId)
+				{
+					s.SimChat(Utils.StringToBytes(message), ChatTypeEnum.Region, channel,
+						new Vector3(0, 0, 0), senderName, UUID.Zero, false);
+					OpenChatbagModule.os_log.Debug("[Chatbag]: Message delivered to " + s.Name);
+					return;
+				}
+			}
+			OpenChatbagModule.os_log.Debug("[Chatbag]: Messaged failed to deliver to region " + regionId.ToString());
+		}
+
+		public static void SendMessageToWorld(string senderName, int channel, string message)
 		{
 			foreach (Scene s in OpenChatbagModule.Scenes) {
-				
-				IWorldComm comm = (IWorldComm)s.RequestModuleInterface<IWorldComm>();
-				if (comm != null) {
-					comm.DeliverMessage(ChatTypeEnum.Region, channel, ChatHandle, UUID.Zero, message);
-				}
+				s.SimChat(Utils.StringToBytes(message), ChatTypeEnum.Broadcast, channel, 
+					new Vector3(0, 0, 0), senderName, UUID.Zero, false);
+				OpenChatbagModule.os_log.Debug("[Chatbag]: Message delivered to "+s.Name);
 			}
 		}
 		#endregion

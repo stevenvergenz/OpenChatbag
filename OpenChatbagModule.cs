@@ -26,7 +26,7 @@ namespace OpenChatbag
 	{
 		#region Module Properties
 
-		private readonly ILog os_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+		public static readonly ILog os_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 		public static List<Scene> Scenes;
 
 		public string Name { get { return "OpenChatbagModule"; } }
@@ -42,21 +42,21 @@ namespace OpenChatbag
 		public void Initialise(IConfigSource source)
 		{
 			os_log.Debug("[OpenChatbag]: Initializing.");
-			chatbags = ConfigParser.Parse("chatbag.xml", "chatbag.xsd");
 			Scenes = new List<Scene>();
 		}
 
 		// runs after Initialize, but before modules are added
 		public void PostInitialise()
 		{
-
+			os_log.Debug("[OpenChatbag]: Post-initializing.");
+			chatbags = ConfigParser.Parse("chatbag.xml", "chatbag.xsd");
 		}
 
 		// runs every time a new region is added to the module
 		public void AddRegion(Scene scene)
 		{
 			Scenes.Add(scene);
-			
+
 			scene.EventManager.OnClientMovement += PositionTracker.Instance.UpdateAvatarPosition;
 			scene.EventManager.OnSceneObjectPartUpdated += PositionTracker.Instance.UpdatePrimPosition;
 		}

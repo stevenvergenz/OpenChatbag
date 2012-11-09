@@ -15,6 +15,13 @@ namespace OpenChatbag
 			public TriggerList(){
 				_list = new Dictionary<Type, List<ITrigger>>();
 			}
+
+			public List<ITrigger> GetTriggers(Type t)
+			{
+				if (_list.ContainsKey(t)) return _list[t];
+				else return new List<ITrigger>();
+			}
+
 			public void addTrigger(ITrigger trigger)
 			{
 				Type t = trigger.GetType();
@@ -52,39 +59,68 @@ namespace OpenChatbag
 			}
 		}
 
+		public enum VolumeType { Global, Region, Shout, Say, Whisper }
 		public struct Response{
-			int Channel;
-			string Text;
-			public Response(int channel, string text){
-				Channel = channel; Text = text;
+			public int Channel;
+			public VolumeType Volume;
+			public string Text;
+			public Response(int channel, VolumeType volume, string text){
+				Channel = channel; Volume = volume;  Text = text;
+			}
+			public static VolumeType ParseVolume(string vol)
+			{
+				switch (vol.ToLower())
+				{
+					case "global":
+						return VolumeType.Global;
+					case "region":
+						return VolumeType.Region;
+					case "shout":
+						return VolumeType.Shout;
+					case "say":
+						return VolumeType.Say;
+					case "whisper":
+						return VolumeType.Whisper;
+					default:
+						throw new ArgumentException("Cannot set volume to arbitrary level " + vol);
+				}
 			}
 		}
 		
 		public enum ResponseSelectionMode { RandomResponse, NextResponse };
 		#endregion
 
-		public ResponseSelectionMode responseMode { get; set; }
 		public string Name { get; set; }
 		public TriggerList triggerList { get; set; }
 		public List<Response> responses { get; protected set; }
+		public ResponseSelectionMode responseMode { get; set; }
+		private int responseCounter;
 
-		public float MaxRange {
-			get {
-				float max = 0;
-				foreach (ITrigger t in triggerList._list[typeof(ProximityTrigger)]){
-					ProximityTrigger trig = t as ProximityTrigger;
-					if (trig.Range > max) max = trig.Range;
-				}
-				return max;
-			}
-		}
-
-		public Interaction()
+		public Interaction(string name)
 		{
-			Name = "";
+			Name = name;
 			triggerList = new TriggerList();
 			responses = new List<Response>();
 			responseMode = ResponseSelectionMode.RandomResponse;
+			responseCounter = 0;
 		}
+
+		public Response GetResponse()
+		{
+			OpenChatbagModule.os_log.Debug("[Chatbag]: Producing response");
+			if (responseMode == ResponseSelectionMode.RandomResponse)
+			{
+				Random rand = new Random(System.DateTime.Now.Millisecond);
+				int choice = rand.Next(responses.Count);
+				return responses[choice];
+			}
+			else // NextResponse
+			{
+				int choice = responseCounter;
+				responseCounter = (responseCounter + 1) % responses.Count;
+				return responses[choice];
+			}
+		}
+
 	}
 }
