@@ -115,7 +115,7 @@ namespace OpenChatbag
 					if (range == trigger.Range)
 					{
 						Interaction.Response response = i.GetResponse();
-						ChatHandler.DeliverPrimMessage(state.Target, Name, response.Channel, response.Text);
+						ChatHandler.DeliverPrimMessage(state.Target, Name, response.Channel, response.Volume, response.Text);
 					}
 				}
 			}
