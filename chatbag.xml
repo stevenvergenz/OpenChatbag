@@ -22,7 +22,7 @@
 				<proximityTrigger/>
 			</triggers>
 			<responses selectionMode="random">
-				<response volume="shout">Welcome to the wonderful world of OpenSim!</response>
+				<response>Welcome to the wonderful world of OpenSim!</response>
 			</responses>
 		</interaction>
 	</regionChatbag>
@@ -30,10 +30,11 @@
   <primChatbag name="Prim Greeter" uuid="b033656f-3463-49c6-a3fd-aaf4d54d2e6c">
     <interaction name="welcome">
       <triggers>
-        <proximityTrigger range="10"/>
+        <proximityTrigger range="20"/>
+        <chatTrigger phrase="hello|hi_world"/>
       </triggers>
       <responses>
-        <response>Welcome to the island of StevenLand2!</response>
+        <response volume="shout">Welcome to the island of StevenLand2!</response>
       </responses>
     </interaction>
   </primChatbag>

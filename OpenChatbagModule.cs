@@ -35,6 +35,10 @@ namespace OpenChatbag
 
 		public List<Chatbag> chatbags;
 
+		public static int WhisperDistance = 10;
+		public static int SayDistance = 20;
+		public static int ShoutDistance = 100;
+
 		#endregion
 
 		#region Module Handles
@@ -43,6 +47,12 @@ namespace OpenChatbag
 		{
 			os_log.Debug("[OpenChatbag]: Initializing.");
 			Scenes = new List<Scene>();
+			if (source.Configs["Chat"].Contains("whisper_distance"))
+				WhisperDistance = source.Configs["Chat"].GetInt("whisper_distance");
+			if (source.Configs["Chat"].Contains("say_distance"))
+				SayDistance = source.Configs["Chat"].GetInt("say_distance");
+			if (source.Configs["Chat"].Contains("shout_distance"))
+				ShoutDistance = source.Configs["Chat"].GetInt("shout_distance");
 		}
 
 		// runs after Initialize, but before modules are added
@@ -59,6 +69,7 @@ namespace OpenChatbag
 
 			scene.EventManager.OnClientMovement += PositionTracker.Instance.UpdateAvatarPosition;
 			scene.EventManager.OnSceneObjectPartUpdated += PositionTracker.Instance.UpdatePrimPosition;
+			scene.EventManager.OnChatFromClient += ChatHandler.Instance.HandleChatInput;
 		}
 
 		// runs after all modules have been loaded for each scene
@@ -74,6 +85,7 @@ namespace OpenChatbag
 			
 			scene.EventManager.OnClientMovement -= PositionTracker.Instance.UpdateAvatarPosition;
 			scene.EventManager.OnSceneObjectPartUpdated -= PositionTracker.Instance.UpdatePrimPosition;
+			scene.EventManager.OnChatFromClient -= ChatHandler.Instance.HandleChatInput;
 		}
 
 		// runs post-termination

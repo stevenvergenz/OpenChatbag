@@ -13,36 +13,65 @@ using log4net;
 namespace OpenChatbag
 {
 	public delegate bool ValidationDelegate(string s);
-	public delegate void ChatHandlerDelegate(List<string> command);
+	public delegate void ChatHandlerDelegate(string command, OSChatMessage matchingPhrase);
 
 	public class ChatHandler
 	{
-		Dictionary<string, ChatHandlerDelegate> commandList;
+		List<ChatCommand> commandList;
 		Dictionary<string, ValidationDelegate> fieldValidateList;
-		
-		#region constructors
-		
-		public ChatHandler()
-		{
-			commandList = new Dictionary<string, ChatHandlerDelegate>();
+
+		#region singleton handling
+		private static ChatHandler instance;
+		private ChatHandler() {
+			commandList = new List<ChatCommand>();
 			fieldValidateList = new Dictionary<string, ValidationDelegate>();
 		}
-
-		#endregion
-
-		#region command registration
-		
-		public void RegisterCommand(string command, ChatHandlerDelegate handler)
-		{
-			if (commandList.ContainsKey(command))
-				commandList[command] = handler;
-			else
-				commandList.Add(command, handler);
-		}
-		public void DeregisterCommand(string command){
-			if( commandList.ContainsKey(command) ){
-				commandList.Remove(command);
+		public static ChatHandler Instance {
+			get {
+				if (instance == null){
+					instance = new ChatHandler();
+				}
+				return instance;
 			}
+		}
+		#endregion
+		
+		#region command registration
+
+		public class ChatCommand : IEquatable<ChatCommand>
+		{
+			public int Channel;
+			public string Phrase;
+			public ChatHandlerDelegate Handler;
+
+			public ChatCommand() { }
+			public ChatCommand(int channel, string phrase, ChatHandlerDelegate handler)
+			{
+				Channel = channel;
+				Phrase = phrase;
+				Handler = handler;
+			}
+
+			public bool Equals(ChatCommand other)
+			{
+				return Channel == other.Channel && Phrase == other.Phrase && Handler == other.Handler;
+			}
+		}
+		public bool RegisterCommand(ChatCommand command){
+			if (!commandList.Contains(command))
+			{
+				commandList.Add(command);
+				return true;
+			}
+			else return false;
+		}
+		public bool DeregisterCommand(ChatCommand command){
+			if (commandList.Contains(command))
+			{
+				commandList.Remove(command);
+				return true;
+			}
+			else return false;
 		}
 		
 		public void RegisterField(string fieldKey, ValidationDelegate validator)
@@ -57,10 +86,10 @@ namespace OpenChatbag
 				fieldValidateList.Remove(fieldKey);
 			}
 		}
-		
+
 		#endregion
 		
-		public void ProcessCommand(string msg)
+		public string DetectCommand(string msg)
 		{
 			List<string> wordList = new List<string>( msg.Split(' '));
 
@@ -71,15 +100,14 @@ namespace OpenChatbag
 
 			List<string> matches = new List<string>();
 
-			bool commandFound, commandWordsFound, commandWordFound;
+			bool commandWordsFound, commandWordFound;
 
 			// see if the phrase matches any commands
-			commandFound = true;
-			foreach ( KeyValuePair<string, ChatHandlerDelegate> kvp in commandList)
+			foreach ( ChatCommand command in commandList)
 			{
 				// break command into sequential words, all of which are required in the proper order
 				int wordPoint = -1;
-				string[] commandWords = kvp.Key.Split('_');
+				string[] commandWords = command.Phrase.Split('_');
 				matches.Clear();
 
 				commandWordsFound = true;
@@ -129,79 +157,26 @@ namespace OpenChatbag
 
 				// all words found, call handler
 				if ( commandWordsFound ){
-					commandFound = true;
-					kvp.Value(matches);
-					break;
+					return command.Phrase;
 				}
 
 			} // for each command
-
-			if (!commandFound)
-			{
-				DefaultChatHandler(matches);
-			}
+			return "";
 		}
-
-		public void DefaultChatHandler(List<string> command)
-		{
-			//SendMessageToAvatar("I don't understand...");
-		}
-
 
 		public void HandleChatInput(object sender, OSChatMessage msg)
 		{
-			ProcessCommand(msg.Message);
+			string command = DetectCommand(msg.Message);
+
 			
-			/*
-			// parse command statement
-			switch (command.Command)
-			{
-				case "help":
-					if (command.Args.Count == 0)
-					{
-						SendMessageToAvatar(
-							"You can ask me to do any of the following actions:\n" +
-							"   help - Get more information on a command\n" +
-							"   connect/disconnect - Apply the stored settings\n" +
-							"   get/set hostname/ip/domain - Get/set the GIFT domain\n" +
-							"   get/set port - Get/set the GIFT port\n" +
-							"   get/set uri - Get/set the GIFT uri string"
-						);
+			if (command != ""){
+				foreach (ChatCommand cmd in commandList){
+					if (cmd.Channel == msg.Channel && cmd.Phrase == command){
+						cmd.Handler(command, msg);
 					}
-					else if (command.Args[0] == "domain")
-					{
-						SendMessageToAvatar(
-							"The domain is the web address, whether IP, hostname, or fully-qualified domain name, " +
-							"that I will look to for my instructions. I will look to the local machine by default.");
-					}
-					else if (command.Args[0] == "port")
-					{
-						SendMessageToAvatar(
-							"The port is my access point into the instruction server. It must be a valid port " +
-							"number (between 1 and 65535). The default port is 61616.");
-					}
-					else if (command.Args[0] == "uri")
-					{
-						SendMessageToAvatar(
-							"The URI connection string is a combination of the protocol, IP address, and port number " +
-							"needed to connect to my instruction server. They look like 'tcp://127.0.0.1:61616', " +
-							"which is the default.");
-					}
-					else if (command.Args[0] == "connect")
-					{
-						SendMessageToAvatar(
-							"When I am told to connect, I will use the previously specified connection information " +
-							"to try to contact my instruction server. You can also tell me to connect directly to " +
-							"a particular URI.");
-					}
-					else if (command.Args[0] == "disconnect")
-					{
-						SendMessageToAvatar(
-							"When I am told to disconnect, I will try to hang up on my instruction server.");
-					}
-				break;
-				
-			}*/
+				}
+			}
+
 		}
 
 		#region outgoing chat functions
@@ -213,9 +188,10 @@ namespace OpenChatbag
 				if (part != null) break;
 			}
 			if (part == null){
-				OpenChatbagModule.os_log.ErrorFormat("[Chatbag]: Could not deliver to nonexistant prim {0}", prim.ToString());
+				OpenChatbagModule.os_log.ErrorFormat("[Chatbag]: Could not deliver to nonexistent prim {0}", prim.ToString());
 				return;
 			}
+
 			ChatTypeEnum type = ChatTypeEnum.Say;
 			if (volume == Interaction.VolumeType.Whisper) type = ChatTypeEnum.Whisper;
 			else if (volume == Interaction.VolumeType.Say) type = ChatTypeEnum.Say;
@@ -228,13 +204,14 @@ namespace OpenChatbag
 
 		public static void DeliverParcelMessage(UUID parcelId, string senderName, int channel, string message)
 		{
-
+			
 		}
 
 		public static void DeliverRegionMessage(UUID regionId, string senderName, int channel, string message)
 		{
 			foreach (Scene s in OpenChatbagModule.Scenes)
 			{
+				
 				if (s.RegionInfo.RegionID == regionId)
 				{
 					s.SimChat(Utils.StringToBytes(message), ChatTypeEnum.Region, channel,
@@ -248,11 +225,12 @@ namespace OpenChatbag
 
 		public static void DeliverWorldMessage(string senderName, int channel, string message)
 		{
-			foreach (Scene s in OpenChatbagModule.Scenes) {
-				s.SimChat(Utils.StringToBytes(message), ChatTypeEnum.Broadcast, channel, 
+			//foreach (Scene s in OpenChatbagModule.Scenes) {
+				OpenChatbagModule.Scenes[0].SimChat(
+					Utils.StringToBytes(message), ChatTypeEnum.Broadcast, channel, 
 					new Vector3(0, 0, 0), senderName, UUID.Zero, false);
-				OpenChatbagModule.os_log.Debug("[Chatbag]: Message delivered to "+s.Name);
-			}
+				OpenChatbagModule.os_log.Debug("[Chatbag]: Message delivered to all regions");
+			//}
 		}
 		#endregion
 	}

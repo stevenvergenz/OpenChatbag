@@ -26,9 +26,21 @@ namespace OpenChatbag
 			physicalState.OnRangeChange += ProcessRangeChange;	
 		}
 
-		public virtual void AfterInteractionsSet() { }
+		public virtual void AfterInteractionsSet()
+		{
+			foreach (Interaction i in InteractionList)
+			{
+				foreach (ChatTrigger trig in i.triggerList.GetTriggers(typeof(ChatTrigger)))
+				{
+					ChatHandler.Instance.RegisterCommand(
+						new ChatHandler.ChatCommand(
+							trig.Channel, trig.Phrase, ProcessChat
+							));
+				}
+			}
+		}
 
-		public virtual void ProcessChat(object sender, OSChatMessage msg) { }
+		public virtual void ProcessChat(string keyphrase, OSChatMessage matchingPhrase) { }
 
 		public virtual void ProcessRangeChange(PositionState state, float range) { }
 
@@ -57,6 +69,22 @@ namespace OpenChatbag
 				}
 			}
 		}
+
+		public override void ProcessChat(string keyphrase, OSChatMessage matchingPhrase)
+		{
+			foreach (Interaction i in InteractionList)
+			{
+				foreach (ChatTrigger trig in i.triggerList.GetTriggers(typeof(ChatTrigger)))
+				{
+					if (trig.Phrase == keyphrase)
+					{
+						Interaction.Response r = i.GetResponse();
+						ChatHandler.DeliverWorldMessage(Name, r.Channel, r.Text);
+						break;
+					}
+				}
+			}
+		}
 	}
 
 
@@ -70,14 +98,28 @@ namespace OpenChatbag
 
 		public override void ProcessRangeChange(PositionState state, float range)
 		{
-			OpenChatbagModule.os_log.Debug("[Chatbag]: Checking range change");
 			foreach (Interaction i in InteractionList)
 			{
 				if (i.triggerList.GetTriggers(typeof(ProximityTrigger)).Count != 0)
 				{
-					OpenChatbagModule.os_log.DebugFormat("[Chatbag]: Triggering interaction {0}", i.Name);
 					Interaction.Response response = i.GetResponse();
 					ChatHandler.DeliverRegionMessage(state.Target, Name, response.Channel, response.Text);
+				}
+			}
+		}
+
+		public override void ProcessChat(string keyphrase, OSChatMessage matchingPhrase)
+		{
+			foreach (Interaction i in InteractionList)
+			{
+				foreach (ChatTrigger trig in i.triggerList.GetTriggers(typeof(ChatTrigger)))
+				{
+					if (matchingPhrase.Scene.RegionInfo.RegionID == physicalState.Target && trig.Phrase == keyphrase)
+					{
+						Interaction.Response r = i.GetResponse();
+						ChatHandler.DeliverRegionMessage(physicalState.Target, Name, r.Channel, r.Text);
+						break;
+					}
 				}
 			}
 		}
@@ -93,6 +135,8 @@ namespace OpenChatbag
 
 		public override void AfterInteractionsSet()
 		{
+			base.AfterInteractionsSet();
+
 			foreach (Interaction i in InteractionList)
 			{
 				foreach (ProximityTrigger trig in i.triggerList.GetTriggers(typeof(ProximityTrigger)))
@@ -107,7 +151,6 @@ namespace OpenChatbag
 
 		public override void ProcessRangeChange(PositionState state, float range)
 		{
-			//base.ProcessRangeChange(state, range);
 			foreach (Interaction i in InteractionList)
 			{
 				foreach( ProximityTrigger trigger in i.triggerList.GetTriggers(typeof(ProximityTrigger)))
@@ -116,6 +159,33 @@ namespace OpenChatbag
 					{
 						Interaction.Response response = i.GetResponse();
 						ChatHandler.DeliverPrimMessage(state.Target, Name, response.Channel, response.Volume, response.Text);
+					}
+				}
+			}
+		}
+
+		public override void ProcessChat(string keyphrase, OSChatMessage matchingPhrase)
+		{
+			float range = Vector3.Distance(
+				PositionTracker.ToGlobalCoordinates(
+					matchingPhrase.Scene.RegionInfo, 
+					matchingPhrase.Sender.SceneAgent.AbsolutePosition),
+				physicalState.Position);
+
+			bool IsInRange =
+				(matchingPhrase.Type == ChatTypeEnum.Whisper && range <= OpenChatbagModule.WhisperDistance) ||
+				(matchingPhrase.Type == ChatTypeEnum.Say && range <= OpenChatbagModule.SayDistance) ||
+				(matchingPhrase.Type == ChatTypeEnum.Shout && range <= OpenChatbagModule.ShoutDistance);
+
+			foreach (Interaction i in InteractionList)
+			{
+				foreach (ChatTrigger trig in i.triggerList.GetTriggers(typeof(ChatTrigger)))
+				{
+					if ( IsInRange && trig.Phrase == keyphrase)
+					{
+						Interaction.Response r = i.GetResponse();
+						ChatHandler.DeliverPrimMessage(physicalState.Target, Name, r.Channel, r.Volume, r.Text);
+						break;
 					}
 				}
 			}

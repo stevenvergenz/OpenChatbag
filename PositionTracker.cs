@@ -75,7 +75,7 @@ namespace OpenChatbag
 	public class PositionTracker
 	{
 		#region singleton handling
-		public static PositionTracker instance;
+		private static PositionTracker instance;
 		private PositionTracker() {
 			TrackerMap = new Dictionary<UUID, PositionState>();
 		}
