@@ -205,17 +205,29 @@ namespace OpenChatbag
 		}
 
 		#region outgoing chat functions
-		public static void SendMessageToPrim(UUID prim, string senderName, int channel, string message)
+		public static void DeliverPrimMessage(UUID prim, string senderName, int channel, string message)
+		{
+			SceneObjectPart part = null;
+			foreach (Scene s in OpenChatbagModule.Scenes){
+				part = s.GetSceneObjectPart(prim);
+				if (part != null) break;
+			}
+			if (part == null){
+				OpenChatbagModule.os_log.ErrorFormat("[Chatbag]: Could not deliver to nonexistant prim {0}", prim.ToString());
+				return;
+			}
+
+			part.ParentGroup.Scene.SimChat(Utils.StringToBytes(message), ChatTypeEnum.Say, channel, 
+				part.AbsolutePosition, senderName, prim, false);
+		}
+
+
+		public static void DeliverParcelMessage(UUID parcelId, string senderName, int channel, string message)
 		{
 
 		}
 
-		public static void SendMessageToParcel(UUID parcelId, string senderName, int channel, string message)
-		{
-
-		}
-
-		public static void SendMessageToRegion(UUID regionId, string senderName, int channel, string message)
+		public static void DeliverRegionMessage(UUID regionId, string senderName, int channel, string message)
 		{
 			foreach (Scene s in OpenChatbagModule.Scenes)
 			{
@@ -230,7 +242,7 @@ namespace OpenChatbag
 			OpenChatbagModule.os_log.Debug("[Chatbag]: Messaged failed to deliver to region " + regionId.ToString());
 		}
 
-		public static void SendMessageToWorld(string senderName, int channel, string message)
+		public static void DeliverWorldMessage(string senderName, int channel, string message)
 		{
 			foreach (Scene s in OpenChatbagModule.Scenes) {
 				s.SimChat(Utils.StringToBytes(message), ChatTypeEnum.Broadcast, channel, 

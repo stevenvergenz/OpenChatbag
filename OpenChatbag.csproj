@@ -54,18 +54,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>lib\mono\OpenMetaverseTypes.dll</HintPath>
     </Reference>
-    <Reference Include="OpenSim.Framework, Version=0.6.5.26208, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>lib\mono\OpenSim.Framework.dll</HintPath>
-    </Reference>
-    <Reference Include="OpenSim.Region.CoreModules, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>lib\mono\OpenSim.Region.CoreModules.dll</HintPath>
-    </Reference>
-    <Reference Include="OpenSim.Region.Framework, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>lib\mono\OpenSim.Region.Framework.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -96,6 +84,20 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="chatbag.xsd" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\opensim\OpenSim\Framework\OpenSim.Framework.csproj">
+      <Project>{BCCDBB55-0000-0000-0000-000000000000}</Project>
+      <Name>OpenSim.Framework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\opensim\OpenSim\Region\CoreModules\OpenSim.Region.CoreModules.csproj">
+      <Project>{B60B8DCD-0000-0000-0000-000000000000}</Project>
+      <Name>OpenSim.Region.CoreModules</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\opensim\OpenSim\Region\Framework\OpenSim.Region.Framework.csproj">
+      <Project>{C98F6D97-0000-0000-0000-000000000000}</Project>
+      <Name>OpenSim.Region.Framework</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>copy $(TargetPath) $(ProjectDir)..\opensim\bin\$(TargetFileName)</PostBuildEvent>

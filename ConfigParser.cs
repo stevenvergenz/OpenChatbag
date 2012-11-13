@@ -36,6 +36,10 @@ namespace OpenChatbag
 				{
 					chatbag = new RegionChatbag(reader.GetAttribute("name"), UUID.Parse(reader.GetAttribute("uuid")));
 				}
+				else if (reader.Name == "primChatbag")
+				{
+					chatbag = new PrimChatbag(reader.GetAttribute("name"), UUID.Parse(reader.GetAttribute("uuid")));
+				}
 				else throw new XmlException("Invalid Chatbag type");
 				reader.ReadStartElement();
 

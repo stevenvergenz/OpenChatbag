@@ -26,29 +26,12 @@ namespace OpenChatbag
 			physicalState.OnRangeChange += ProcessRangeChange;	
 		}
 
-		public virtual void AfterInteractionsSet()
-		{
+		public virtual void AfterInteractionsSet() { }
 
-		}
+		public virtual void ProcessChat(object sender, OSChatMessage msg) { }
 
-		public virtual void ProcessChat(object sender, OSChatMessage msg)
-		{
+		public virtual void ProcessRangeChange(PositionState state, float range) { }
 
-		}
-
-		public virtual void ProcessRangeChange(PositionState state, float range)
-		{
-			OpenChatbagModule.os_log.Debug("[Chatbag]: Checking range change");
-			foreach (Interaction i in InteractionList)
-			{
-				if(i.triggerList.GetTriggers(typeof(ProximityTrigger)).Count != 0)
-				{
-					OpenChatbagModule.os_log.DebugFormat("[Chatbag]: Triggering interaction {0}", i.Name);
-					Interaction.Response response = i.GetResponse();
-					ChatHandler.SendMessageToWorld(Name, physicalState.Target, response.Channel, response.Text);
-				}
-			}
-		}
 		#endregion
 	}
 
@@ -61,6 +44,19 @@ namespace OpenChatbag
 
 		}
 
+		public override void ProcessRangeChange(PositionState state, float range)
+		{
+			OpenChatbagModule.os_log.Debug("[Chatbag]: Checking range change");
+			foreach (Interaction i in InteractionList)
+			{
+				if (i.triggerList.GetTriggers(typeof(ProximityTrigger)).Count != 0)
+				{
+					OpenChatbagModule.os_log.DebugFormat("[Chatbag]: Triggering interaction {0}", i.Name);
+					Interaction.Response response = i.GetResponse();
+					ChatHandler.DeliverWorldMessage(Name, response.Channel, response.Text);
+				}
+			}
+		}
 	}
 
 
@@ -71,12 +67,26 @@ namespace OpenChatbag
 		{
 
 		}
+
+		public override void ProcessRangeChange(PositionState state, float range)
+		{
+			OpenChatbagModule.os_log.Debug("[Chatbag]: Checking range change");
+			foreach (Interaction i in InteractionList)
+			{
+				if (i.triggerList.GetTriggers(typeof(ProximityTrigger)).Count != 0)
+				{
+					OpenChatbagModule.os_log.DebugFormat("[Chatbag]: Triggering interaction {0}", i.Name);
+					Interaction.Response response = i.GetResponse();
+					ChatHandler.DeliverRegionMessage(state.Target, Name, response.Channel, response.Text);
+				}
+			}
+		}
 	}
 
 	public class PrimChatbag : Chatbag
 	{
-		public PrimChatbag(string name)
-			: base(name)
+		public PrimChatbag(string name, UUID uuid)
+			: base(name, uuid)
 		{
 
 		}
@@ -90,6 +100,22 @@ namespace OpenChatbag
 					if (!physicalState.NearbyRadii.Contains(trig.Range))
 					{
 						physicalState.NearbyRadii.Add(trig.Range);
+					}
+				}
+			}
+		}
+
+		public override void ProcessRangeChange(PositionState state, float range)
+		{
+			//base.ProcessRangeChange(state, range);
+			foreach (Interaction i in InteractionList)
+			{
+				foreach( ProximityTrigger trigger in i.triggerList.GetTriggers(typeof(ProximityTrigger)))
+				{
+					if (range == trigger.Range)
+					{
+						Interaction.Response response = i.GetResponse();
+						ChatHandler.DeliverPrimMessage(state.Target, Name, response.Channel, response.Text);
 					}
 				}
 			}
