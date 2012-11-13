@@ -11,37 +11,31 @@
 	     Local scope requires one of the prim or location attributes. Specifies a prim or position to center the interactions on.
 	-->
 	
-	<!-- 1 or more -->
-	<globalChatbag name="greeter">
-		
-		<!-- 1 or more -->
-		<interaction name="welcome">
-			
-			<!-- exactly 1 -->
+	<regionChatbag name="greeter" uuid="50107c9e-caac-4232-8773-6bd44e7684a9">
+    <interaction name="welcome">
 			<triggers>
-				
-				<!-- 0 or 1 -->
 				<fields>
-					<!-- 1 or more -->
 					<field key="ip" regex="(?:[0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])(?:\.(?:[0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])){3}"/>
 				</fields>
-				
-				<!-- 1 or more -->
 				<chatTrigger channel="0" phrase="hi|hello"/>
 				<chatTrigger channel="543" phrase="is_ip_{ip}"/>
 				<proximityTrigger/>
 			</triggers>
-			
-			<!-- exactly 1 -->
 			<responses selectionMode="random">
-				
-				<!-- 1 or more -->
-				<response volume="say">Welcome to the wonderful world of OpenSim!</response>
-				
+				<response volume="shout">Welcome to the wonderful world of OpenSim!</response>
 			</responses>
-			
 		</interaction>
-		
-	</globalChatbag>
+	</regionChatbag>
 	
+  <primChatbag name="Prim Greeter" uuid="b033656f-3463-49c6-a3fd-aaf4d54d2e6c">
+    <interaction name="welcome">
+      <triggers>
+        <proximityTrigger range="10"/>
+      </triggers>
+      <responses>
+        <response>Welcome to the island of StevenLand2!</response>
+      </responses>
+    </interaction>
+  </primChatbag>
+  
 </config>
