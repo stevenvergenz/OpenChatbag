@@ -55,8 +55,9 @@ namespace OpenChatbag
 						reader.ReadStartElement("fields"); // read fields
 						while (reader.IsStartElement("field"))
 						{
-							Console.Out.WriteLine(String.Format("field with key {0} and regex {1}",
-								reader.GetAttribute("key"), reader.GetAttribute("regex")));
+							string key = reader.GetAttribute("key");
+							string regex = reader.GetAttribute("regex");
+							ChatHandler.Instance.RegisterField(key, regex);
 							reader.ReadStartElement(); // read field
 						}
 						reader.ReadEndElement(); // end fields

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 using OpenMetaverse;
 using OpenSim.Framework;
@@ -12,19 +13,18 @@ using log4net;
 
 namespace OpenChatbag
 {
-	public delegate bool ValidationDelegate(string s);
 	public delegate void ChatHandlerDelegate(string command, OSChatMessage matchingPhrase);
 
 	public class ChatHandler
 	{
 		List<ChatCommand> commandList;
-		Dictionary<string, ValidationDelegate> fieldValidateList;
+		Dictionary<string, string> fieldValidateList;
 
 		#region singleton handling
 		private static ChatHandler instance;
 		private ChatHandler() {
 			commandList = new List<ChatCommand>();
-			fieldValidateList = new Dictionary<string, ValidationDelegate>();
+			fieldValidateList = new Dictionary<string, string>();
 		}
 		public static ChatHandler Instance {
 			get {
@@ -74,7 +74,7 @@ namespace OpenChatbag
 			else return false;
 		}
 		
-		public void RegisterField(string fieldKey, ValidationDelegate validator)
+		public void RegisterField(string fieldKey, string validator)
 		{
 			if (fieldValidateList.ContainsKey(fieldKey))
 				fieldValidateList[fieldKey] = validator;
@@ -130,14 +130,15 @@ namespace OpenChatbag
 							break;
 						}
 						// try to match a field
-						else if( synonym.StartsWith("[") && synonym.EndsWith("]") )
+						else if( synonym.StartsWith("{") && synonym.EndsWith("}") )
 						{
-							string keyword = synonym.Trim("[]".ToCharArray());
+							string keyword = synonym.Trim("{}".ToCharArray());
 							for(int i=wordPoint+1; i<wordList.Count; i++)
 							{
-								// field found
-								if( fieldValidateList[keyword](wordList[i]) )
+								Regex re = new Regex(fieldValidateList[keyword]);
+								if( re.IsMatch(wordList[i]) )
 								{
+									// field found
 									wordPoint = i;
 									matches.Add(wordList[i]);
 									commandWordFound = true;
@@ -166,6 +167,8 @@ namespace OpenChatbag
 
 		public void HandleChatInput(object sender, OSChatMessage msg)
 		{
+			if (msg.Type == ChatTypeEnum.StartTyping || msg.Type == ChatTypeEnum.StopTyping) return;
+
 			string command = DetectCommand(msg.Message);
 
 			
