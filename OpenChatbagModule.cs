@@ -58,8 +58,19 @@ namespace OpenChatbag
 		// runs after Initialize, but before modules are added
 		public void PostInitialise()
 		{
-			os_log.Debug("[OpenChatbag]: Post-initializing.");
-			chatbags = ConfigParser.Parse("chatbag.xml", "chatbag.xsd");
+			try
+			{
+				os_log.Debug("[OpenChatbag]: Loading config file");
+				chatbags = ConfigParser.Parse("chatbag.xml", "chatbag.xsd");
+			}
+			catch (Exception e)
+			{
+				os_log.Error("[OpenChatbag]: Failed to load config file, loading console only!", e);
+				chatbags = new List<Chatbag>();
+				ConsoleChatbag console = new ConsoleChatbag(101010);
+				console.AfterInteractionsSet();
+				chatbags.Add(console);
+			}
 		}
 
 		// runs every time a new region is added to the module

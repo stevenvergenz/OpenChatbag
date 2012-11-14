@@ -120,7 +120,12 @@ namespace OpenChatbag
 			}
 			else return false;
 		}
-		
+
+		public void ClearTrackers()
+		{
+			TrackerMap.Clear();
+		}
+
 		public void UpdateAvatarPosition(ScenePresence client)
 		{
 			Vector3 avatarPosition = ToGlobalCoordinates(client.Scene.RegionInfo, client.AbsolutePosition);

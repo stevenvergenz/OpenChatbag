@@ -40,6 +40,7 @@ namespace OpenChatbag
 
 		public class ChatCommand : IEquatable<ChatCommand>
 		{
+			public bool Hazardous = false;
 			public int Channel;
 			public string Phrase;
 			public ChatHandlerDelegate Handler;
@@ -57,6 +58,7 @@ namespace OpenChatbag
 				return Channel == other.Channel && Phrase == other.Phrase && Handler == other.Handler;
 			}
 		}
+
 		public bool RegisterCommand(ChatCommand command){
 			if (!commandList.Contains(command))
 			{
@@ -65,6 +67,7 @@ namespace OpenChatbag
 			}
 			else return false;
 		}
+
 		public bool DeregisterCommand(ChatCommand command){
 			if (commandList.Contains(command))
 			{
@@ -81,12 +84,18 @@ namespace OpenChatbag
 			else
 				fieldValidateList.Add(fieldKey, validator);
 		}
+
 		public void DeregisterField(string fieldKey){
 			if( fieldValidateList.ContainsKey(fieldKey) ){
 				fieldValidateList.Remove(fieldKey);
 			}
 		}
 
+		public void ClearRegistry()
+		{
+			fieldValidateList.Clear();
+			commandList.Clear();
+		}
 		#endregion
 		
 		public string DetectCommand(string msg)
@@ -171,18 +180,47 @@ namespace OpenChatbag
 
 			string command = DetectCommand(msg.Message);
 
-			
+			ChatHandlerDelegate hazardHandler = null;
 			if (command != ""){
 				foreach (ChatCommand cmd in commandList){
 					if (cmd.Channel == msg.Channel && cmd.Phrase == command){
-						cmd.Handler(command, msg);
+						if (!cmd.Hazardous){
+							cmd.Handler(command, msg);
+						}
+						else {
+							hazardHandler = cmd.Handler;
+							break;
+						}
 					}
 				}
+
+				if (hazardHandler != null)
+					hazardHandler(command, msg);
 			}
 
 		}
 
 		#region outgoing chat functions
+		public static void DeliverPrivateMessage(UUID avatar, string senderName, string message)
+		{
+			Scene scene = null;
+			foreach (Scene s in OpenChatbagModule.Scenes)
+			{
+				SceneObjectPart part = s.GetSceneObjectPart(avatar);
+				if (part != null){
+					scene = s;
+					break;
+				}
+			}
+			if (scene == null)
+			{
+				OpenChatbagModule.os_log.ErrorFormat("[Chatbag]: Could not find user {0}", avatar.ToString());
+				return;
+			}
+
+			scene.SimChatToAgent(avatar, Utils.StringToBytes(message), Vector3.Zero, senderName, UUID.Zero, false);
+		}
+
 		public static void DeliverPrimMessage(UUID prim, string senderName, int channel, Interaction.VolumeType volume, string message)
 		{
 			SceneObjectPart part = null;

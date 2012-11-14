@@ -18,8 +18,12 @@ namespace OpenChatbag
 			XmlSchema schema = readerSettings.Schemas.Add("https://github.com/stevenvergenz/OpenChatbag",schemaname);
 			XmlReader reader = XmlReader.Create(filename, readerSettings);
 			List<Chatbag> ret = new List<Chatbag>();
-
 			reader.MoveToContent();
+
+			ConsoleChatbag console = new ConsoleChatbag(int.Parse(reader.GetAttribute("consoleChannel")));
+			console.AfterInteractionsSet();
+			ret.Add(console);
+
 			reader.ReadStartElement("config");
 
 			List<string> bagTypes = new List<string>(new string[] {
@@ -107,7 +111,8 @@ namespace OpenChatbag
 				ret.Add(chatbag);
 				chatbag.AfterInteractionsSet();
 			}
-			
+			reader.Close();
+
 			return ret;
 		}
 	}

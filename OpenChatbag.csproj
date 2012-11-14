@@ -63,6 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChatHandler.cs" />
+    <Compile Include="ConsoleChatbag.cs" />
     <Compile Include="Interaction.cs" />
     <Compile Include="OpenChatbagModule.cs" />
     <Compile Include="PositionTracker.cs" />
