@@ -59,7 +59,7 @@ namespace OpenChatbag
 			}
 		}
 
-		public enum VolumeType { Global, Region, Shout, Say, Whisper }
+		public enum VolumeType { Global, Region, Shout, Say, Whisper, Private }
 		public struct Response{
 			public int Channel;
 			public VolumeType Volume;
