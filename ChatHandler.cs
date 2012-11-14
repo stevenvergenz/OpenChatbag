@@ -98,10 +98,11 @@ namespace OpenChatbag
 		}
 		#endregion
 		
-		public string DetectCommand(string msg)
+		public List<string> DetectCommand(string msg)
 		{
 			List<string> wordList = new List<string>( msg.Split(' '));
-
+			List<string> matchList = new List<string>();
+			
 			// sanitize input
 			for (int i = 0; i < wordList.Count; i++ ){
 				wordList[i] = wordList[i].ToLower().Trim(" .,!?".ToCharArray());
@@ -167,25 +168,25 @@ namespace OpenChatbag
 
 				// all words found, call handler
 				if ( commandWordsFound ){
-					return command.Phrase;
+					matchList.Add(command.Phrase);
 				}
 
 			} // for each command
-			return "";
+			return matchList;
 		}
 
 		public void HandleChatInput(object sender, OSChatMessage msg)
 		{
 			if (msg.Type == ChatTypeEnum.StartTyping || msg.Type == ChatTypeEnum.StopTyping) return;
 
-			string command = DetectCommand(msg.Message);
+			List<string> matchList = DetectCommand(msg.Message);
 
 			ChatHandlerDelegate hazardHandler = null;
-			if (command != ""){
+			foreach( string cmdstring in matchList ){
 				foreach (ChatCommand cmd in commandList){
-					if (cmd.Channel == msg.Channel && cmd.Phrase == command){
+					if (cmd.Channel == msg.Channel && cmd.Phrase == cmdstring){
 						if (!cmd.Hazardous){
-							cmd.Handler(command, msg);
+							cmd.Handler(cmdstring, msg);
 						}
 						else {
 							hazardHandler = cmd.Handler;
@@ -195,7 +196,7 @@ namespace OpenChatbag
 				}
 
 				if (hazardHandler != null)
-					hazardHandler(command, msg);
+					hazardHandler(cmdstring, msg);
 			}
 
 		}
