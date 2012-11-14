@@ -19,12 +19,16 @@ namespace OpenChatbag
 			XmlReader reader = XmlReader.Create(filename, readerSettings);
 			List<Chatbag> ret = new List<Chatbag>();
 			reader.MoveToContent();
-
-			ConsoleChatbag console = new ConsoleChatbag(int.Parse(reader.GetAttribute("consoleChannel")));
-			console.AfterInteractionsSet();
-			ret.Add(console);
-
-			reader.ReadStartElement("config");
+			
+			if(reader.IsStartElement("config")){
+				int channel = int.Parse(reader.GetAttribute("consoleChannel"));
+				ConsoleChatbag console = new ConsoleChatbag(channel);
+				console.AfterInteractionsSet();
+				ret.Add(console);
+				reader.ReadStartElement("config");
+			}
+			else throw new XmlException("Document element is not correct");
+			
 
 			List<string> bagTypes = new List<string>(new string[] {
 				"globalChatbag", "regionChatbag", "parcelChatbag", "primChatbag", "locationChatbag"
@@ -111,6 +115,7 @@ namespace OpenChatbag
 				ret.Add(chatbag);
 				chatbag.AfterInteractionsSet();
 			}
+			reader.ReadEndElement(); // end config
 			reader.Close();
 
 			return ret;

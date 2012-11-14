@@ -98,9 +98,12 @@ namespace OpenChatbag
 			else {
 				PositionState tracker = new PositionState(target);
 				TrackerMap.Add(target, tracker);
+				
 				string type = "derp";
 				if( tracker.Type == PositionState.TargetType.Region ) type = "Region";
+				else if( tracker.Type == PositionState.TargetType.Prim) type = "Prim";
 				OpenChatbagModule.os_log.Debug("[Chatbag]: Adding new tracker of type " + type);
+				
 				return tracker;
 			}
 		}
@@ -185,7 +188,7 @@ namespace OpenChatbag
 			}
 		}
 
-		public void UpdatePrimPosition(SceneObjectPart sop)
+		public void UpdatePrimPosition(SceneObjectPart sop, bool full)
 		{
 			if (TrackerMap.ContainsKey(sop.UUID))
 			{
