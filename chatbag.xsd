@@ -8,15 +8,6 @@
 	
 	<!-- types -->
 	
-	<xs:simpleType name="scopeType">
-		<xs:restriction base="xs:string">
-			<xs:enumeration value="global"/>
-			<xs:enumeration value="region"/>
-			<xs:enumeration value="parcel"/>
-			<xs:enumeration value="local"/>
-		</xs:restriction>
-	</xs:simpleType>
-	
 	<xs:simpleType name="uuidType">
 		<xs:restriction base="xs:string">
 			<xs:pattern value="[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}"/>
@@ -37,6 +28,7 @@
       <xs:enumeration value="shout"/>
       <xs:enumeration value="say"/>
       <xs:enumeration value="whisper"/>
+	  <xs:enumeration value="private"/>
     </xs:restriction>
   </xs:simpleType>
 	

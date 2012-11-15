@@ -81,6 +81,8 @@ namespace OpenChatbag
 						return VolumeType.Say;
 					case "whisper":
 						return VolumeType.Whisper;
+					case "private":
+						return VolumeType.Private;
 					default:
 						throw new ArgumentException("Cannot set volume to arbitrary level " + vol);
 				}
