@@ -188,7 +188,7 @@ namespace OpenChatbag
 			}
 		}
 
-		public void UpdatePrimPosition(SceneObjectPart sop, bool full)
+		public void UpdatePrimPosition(SceneObjectPart sop)
 		{
 			if (TrackerMap.ContainsKey(sop.UUID))
 			{
