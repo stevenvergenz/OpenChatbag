@@ -1,41 +1,80 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 
-<!-- exactly 1 -->
-<config consoleChannel="101010"
-		xmlns="https://github.com/stevenvergenz/OpenChatbag"
-		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		xsi:schemaLocation="https://github.com/stevenvergenz/OpenChatbag chatbag.xsd">
-	
-	<!-- Global scope requires no additional parameters. Will apply to all loaded regions.
+<config xmlns="https://github.com/stevenvergenz/OpenChatbag" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" consoleChannel="101010" xsi:schemaLocation="https://github.com/stevenvergenz/OpenChatbag chatbag.xsd">
+  <!-- Global scope requires no additional parameters. Will apply to all loaded regions.
 	     Region scope requires the region uuid as an attribute. The chatbag will respond anywhere in the region.
 	     Parcel scope requires the parcel uuid as an attribute. The chatbag will respond anywhere in the parcel.
 	     Local scope requires one of the prim or location attributes. Specifies a prim or position to center the interactions on.
 	-->
-	
-	<regionChatbag name="greeter" uuid="9d731cb0-47ed-4a80-baa1-b74eba7cb21d">
-		<interaction name="welcome">
-			<triggers>
-				<fields>
-					<field key="ip" regex="(?:[0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])(?:\.(?:[0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])){3}"/>
-				</fields>
-				<chatTrigger channel="0" phrase="hi|hello"/>
-				<chatTrigger channel="543" phrase="is_ip_{ip}"/>
-				<proximityTrigger range="5"/>
-			</triggers>
-			<responses selectionMode="random">
-				<response channel="0" volume="say">Welcome to the wonderful world of OpenSim!</response>
-			</responses>
-		</interaction>
-	</regionChatbag>
-	
-  <primChatbag name="Prim Greeter" uuid="92165718-6e75-4bba-a5c4-6f02265a1264">
-    <interaction name="welcome">
+  <globalChatbag name="World Greeter">
+	<interaction name="hello">
       <triggers>
-        <proximityTrigger range="20"/>
-        <chatTrigger channel="0" phrase="hello|hi_world"/>
+        <chatTrigger channel="0" phrase="hi|hello_world"/>
+      </triggers>
+      <responses selectionMode="random">
+        <response channel="0" volume="private">Hello yourself!</response>
+      </responses>
+    </interaction>
+    <interaction name="greetings">
+      <triggers>
+        <proximityTrigger range="5"/>
+      </triggers>
+      <responses selectionMode="random">
+        <response volume="global" channel="0">Welcome to the world of Opensim!</response>
+      </responses>
+    </interaction>
+  </globalChatbag>
+	
+  <regionChatbag name="Region Greeter" uuid="9d731cb0-47ed-4a80-baa1-b74eba7cb21d">
+    <interaction name="hello">
+      <triggers>
+        <chatTrigger channel="0" phrase="hi|hello_region"/>
+      </triggers>
+      <responses selectionMode="random">
+        <response channel="0" volume="private">Hello yourself!</response>
+      </responses>
+    </interaction>
+    <interaction name="greetings">
+      <triggers>
+        <proximityTrigger range="5"/>
+      </triggers>
+      <responses selectionMode="random">
+        <response volume="region" channel="0">Welcome to the local region of Opensim!</response>
+      </responses>
+    </interaction>
+  </regionChatbag>
+  
+  <primChatbag name="Prim Greeter" uuid="92165718-6e75-4bba-a5c4-6f02265a1264">
+    <interaction name="hello">
+      <triggers>
+        <chatTrigger channel="0" phrase="hello|hi_prim"/>
       </triggers>
       <responses>
-        <response channel="0" volume="shout">Welcome to the island of StevenLand2!</response>
+        <response channel="0" volume="private">Hello yourself!</response>
+      </responses>
+    </interaction>
+    <interaction name="greetings">
+      <triggers>
+        <proximityTrigger range="50"/>
+      </triggers>
+      <responses selectionMode="random">
+        <response volume="shout" channel="0">Welcome to this area of Opensim!</response>
+      </responses>
+    </interaction>
+    <interaction name="greetings">
+      <triggers>
+        <proximityTrigger range="20"/>
+      </triggers>
+      <responses selectionMode="random">
+        <response volume="say" channel="0">Welcome to this area of Opensim!</response>
+      </responses>
+    </interaction>
+    <interaction name="greetings">
+      <triggers>
+        <proximityTrigger range="10"/>
+      </triggers>
+      <responses selectionMode="random">
+        <response volume="whisper" channel="0">Welcome to this area of Opensim!</response>
       </responses>
     </interaction>
   </primChatbag>
