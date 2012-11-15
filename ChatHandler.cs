@@ -202,13 +202,14 @@ namespace OpenChatbag
 		}
 
 		#region outgoing chat functions
+		
 		public static void DeliverPrivateMessage(UUID avatar, string senderName, string message)
 		{
 			Scene scene = null;
+			IClientAPI client = null;
 			foreach (Scene s in OpenChatbagModule.Scenes)
 			{
-				SceneObjectPart part = s.GetSceneObjectPart(avatar);
-				if (part != null){
+				if (s.TryGetClient(avatar, out client)){
 					scene = s;
 					break;
 				}
@@ -220,6 +221,7 @@ namespace OpenChatbag
 			}
 
 			scene.SimChatToAgent(avatar, Utils.StringToBytes(message), Vector3.Zero, senderName, UUID.Zero, false);
+			OpenChatbagModule.os_log.Debug("[Chatbag]: Message delivered to " + client.Name);
 		}
 
 		public static void DeliverPrimMessage(UUID prim, string senderName, int channel, Interaction.VolumeType volume, string message)
@@ -241,6 +243,7 @@ namespace OpenChatbag
 
 			part.ParentGroup.Scene.SimChat(Utils.StringToBytes(message), type, channel, 
 				part.AbsolutePosition, senderName, prim, false);
+			OpenChatbagModule.os_log.Debug("[Chatbag]: Message delivered to " + part.Name);
 		}
 
 

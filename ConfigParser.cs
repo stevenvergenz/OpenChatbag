@@ -96,10 +96,11 @@ namespace OpenChatbag
 					reader.ReadStartElement("responses"); // read responses
 					while (reader.IsStartElement("response"))
 					{
-						int channel = int.Parse(reader.GetAttribute("channel"));
+						int channel = 0;
 						Interaction.VolumeType volume =
-							//Interaction.Response.ParseVolume(reader.GetAttribute(0));
 							Interaction.Response.ParseVolume(reader.GetAttribute("volume"));
+						if( volume != Interaction.VolumeType.Private )
+							channel = int.Parse(reader.GetAttribute("channel"));
 						reader.ReadStartElement(); // read response
 
 						Interaction.Response r = new Interaction.Response(channel, volume, reader.ReadString());

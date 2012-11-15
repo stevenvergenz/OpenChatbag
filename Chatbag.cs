@@ -12,7 +12,7 @@ namespace OpenChatbag
 	{
 		public string Name { get; set; }
 		public List<Interaction> InteractionList { get; protected set; }
-		public PositionState physicalState;
+		public PositionState tracker;
 
 		#region implementation
 		public Chatbag(string name)
@@ -22,8 +22,8 @@ namespace OpenChatbag
 		}
 		public Chatbag(string name, UUID target) : this(name)
 		{
-			physicalState = PositionTracker.Instance.addTracker(target);
-			physicalState.OnRangeChange += ProcessRangeChange;	
+			tracker = PositionTracker.Instance.addTracker(target);
+			tracker.OnRangeChange += ProcessRangeChange;	
 		}
 
 		public virtual void AfterInteractionsSet()
@@ -40,9 +40,45 @@ namespace OpenChatbag
 			}
 		}
 
-		public virtual void ProcessChat(string keyphrase, OSChatMessage matchingPhrase) { }
+		public virtual void ProcessChat(string keyphrase, OSChatMessage matchingPhrase) 
+		{
+			foreach (Interaction i in InteractionList)
+			{
+				foreach (ChatTrigger trig in i.triggerList.GetTriggers(typeof(ChatTrigger)))
+				{
+					if (trig.Phrase == keyphrase && FinalChatCheck(keyphrase, matchingPhrase))
+					{
+						Interaction.Response message = i.GetResponse();
+						switch(message.Volume){
+						case Interaction.VolumeType.Global:
+							ChatHandler.DeliverWorldMessage(Name, message.Channel, message.Text);
+							break;
+							
+						case Interaction.VolumeType.Region:
+							ChatHandler.DeliverRegionMessage(matchingPhrase.Scene.RegionInfo.RegionID, 
+							                                 Name, message.Channel, message.Text);
+							break;
+							
+						case Interaction.VolumeType.Shout:
+						case Interaction.VolumeType.Say:
+						case Interaction.VolumeType.Whisper:
+							ChatHandler.DeliverPrimMessage(tracker.Target, Name, 
+							                               message.Channel, message.Volume, message.Text);
+							break;
+							
+						case Interaction.VolumeType.Private:
+							ChatHandler.DeliverPrivateMessage(matchingPhrase.SenderUUID, Name, message.Text);
+							break;
+						}
+						break;
+					}
+				}
+			}
+		}
 
 		public virtual void ProcessRangeChange(PositionState state, float range) { }
+		
+		public virtual bool FinalChatCheck(string keyphrase, OSChatMessage match) { return true; }
 
 		#endregion
 	}
@@ -70,20 +106,9 @@ namespace OpenChatbag
 			}
 		}
 
-		public override void ProcessChat(string keyphrase, OSChatMessage matchingPhrase)
+		public override bool FinalChatCheck(string keyphrase, OSChatMessage matchingPhrase)
 		{
-			foreach (Interaction i in InteractionList)
-			{
-				foreach (ChatTrigger trig in i.triggerList.GetTriggers(typeof(ChatTrigger)))
-				{
-					if (trig.Phrase == keyphrase)
-					{
-						Interaction.Response r = i.GetResponse();
-						ChatHandler.DeliverWorldMessage(Name, r.Channel, r.Text);
-						break;
-					}
-				}
-			}
+			return true;
 		}
 	}
 
@@ -108,20 +133,9 @@ namespace OpenChatbag
 			}
 		}
 
-		public override void ProcessChat(string keyphrase, OSChatMessage matchingPhrase)
+		public override bool FinalChatCheck(string keyphrase, OSChatMessage matchingPhrase)
 		{
-			foreach (Interaction i in InteractionList)
-			{
-				foreach (ChatTrigger trig in i.triggerList.GetTriggers(typeof(ChatTrigger)))
-				{
-					if (matchingPhrase.Scene.RegionInfo.RegionID == physicalState.Target && trig.Phrase == keyphrase)
-					{
-						Interaction.Response r = i.GetResponse();
-						ChatHandler.DeliverRegionMessage(physicalState.Target, Name, r.Channel, r.Text);
-						break;
-					}
-				}
-			}
+			return matchingPhrase.Scene.RegionInfo.RegionID == tracker.Target;
 		}
 	}
 
@@ -141,9 +155,9 @@ namespace OpenChatbag
 			{
 				foreach (ProximityTrigger trig in i.triggerList.GetTriggers(typeof(ProximityTrigger)))
 				{
-					if (!physicalState.NearbyRadii.Contains(trig.Range))
+					if (!tracker.NearbyRadii.Contains(trig.Range))
 					{
-						physicalState.NearbyRadii.Add(trig.Range);
+						tracker.NearbyRadii.Add(trig.Range);
 					}
 				}
 			}
@@ -164,31 +178,19 @@ namespace OpenChatbag
 			}
 		}
 
-		public override void ProcessChat(string keyphrase, OSChatMessage matchingPhrase)
+		public override bool FinalChatCheck(string keyphrase, OSChatMessage matchingPhrase)
 		{
 			float range = Vector3.Distance(
 				PositionTracker.ToGlobalCoordinates(
 					matchingPhrase.Scene.RegionInfo, 
 					matchingPhrase.Sender.SceneAgent.AbsolutePosition),
-				physicalState.Position);
+				tracker.Position);
 
-			bool IsInRange =
+			return
 				(matchingPhrase.Type == ChatTypeEnum.Whisper && range <= OpenChatbagModule.WhisperDistance) ||
 				(matchingPhrase.Type == ChatTypeEnum.Say && range <= OpenChatbagModule.SayDistance) ||
 				(matchingPhrase.Type == ChatTypeEnum.Shout && range <= OpenChatbagModule.ShoutDistance);
 
-			foreach (Interaction i in InteractionList)
-			{
-				foreach (ChatTrigger trig in i.triggerList.GetTriggers(typeof(ChatTrigger)))
-				{
-					if ( IsInRange && trig.Phrase == keyphrase)
-					{
-						Interaction.Response r = i.GetResponse();
-						ChatHandler.DeliverPrimMessage(physicalState.Target, Name, r.Channel, r.Volume, r.Text);
-						break;
-					}
-				}
-			}
 		}
 	}
 }
