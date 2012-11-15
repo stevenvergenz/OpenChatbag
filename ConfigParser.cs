@@ -121,6 +121,39 @@ namespace OpenChatbag
 
 			return ret;
 		}
+		
+		private static ResponseList ParseResponses(XmlReader reader)
+		{
+			if( reader.IsStartElement("response") )
+			{
+				int channel = 0;
+				Interaction.VolumeType volume =
+					Interaction.Response.ParseVolume(reader.GetAttribute("volume"));
+				if( volume != Interaction.VolumeType.Private )
+					channel = int.Parse(reader.GetAttribute("channel"));
+				reader.ReadStartElement(); // read response
+				string text = reader.ReadString();
+				reader.ReadEndElement(); // end response
+				
+				return new Response(channel, volume, text);
+			}
+			else if( reader.IsStartElement("responses") )
+			{
+				ResponseList.ResponseSelectionMode mode = ResponseList.ParseSelectionMode(reader.GetAttribute("selectionMode"));
+				List<ResponseList> list = new List<ResponseList>();
+				reader.ReadStartElement("responses");
+				while( reader.IsStartElement() )
+				{
+					list.Add( ParseResponses(reader) );
+				}
+				reader.readEndElement(); // end responses
+				return new ResponseList(list, mode);
+			}
+			else
+			{
+				throw new XmlException("Unexpected tag in response list: "+reader.Name);
+			}
+		}
 	}
 }
 
