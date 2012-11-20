@@ -64,17 +64,13 @@ namespace OpenChatbag
 
 		public string Name { get; set; }
 		public TriggerList triggerList { get; set; }
-		public List<Response> responses { get; protected set; }
-		public ResponseSelectionMode responseMode { get; set; }
-		private int responseCounter;
+		public ResponseList responses { get; set; }
 
 		public Interaction(string name)
 		{
 			Name = name;
 			triggerList = new TriggerList();
-			responses = new List<Response>();
-			responseMode = ResponseSelectionMode.RandomResponse;
-			responseCounter = 0;
+			responses = null;
 		}
 	}
 }

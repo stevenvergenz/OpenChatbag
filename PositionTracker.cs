@@ -12,7 +12,7 @@ using OpenSim.Region.Framework.Interfaces;
 
 namespace OpenChatbag
 {
-	public delegate void RangeChangeDelegate(PositionState s, float range);
+	public delegate void RangeChangeDelegate(PositionState s, ScenePresence avatar, float range);
 
 	public class PositionState
 	{
@@ -67,8 +67,8 @@ namespace OpenChatbag
 				throw new ArgumentException("Given UUID (" + target.ToString() + ") is not in the world");
 		}
 
-		public void TriggerOnRangeChange(float range){
-			OnRangeChange.Invoke(this, range);
+		public void TriggerOnRangeChange(ScenePresence avatar, float range){
+			OnRangeChange.Invoke(this, avatar, range);
 		}
 	}
 	
@@ -147,26 +147,12 @@ namespace OpenChatbag
 							if (inZone && !poi.NearbyAvatars[range].Contains(client.UUID))
 							{
 								poi.NearbyAvatars[range].Add(client.UUID);
-								poi.TriggerOnRangeChange(range);
+								poi.TriggerOnRangeChange(client, range);
 							}
 							else if (!inZone && poi.NearbyAvatars[range].Contains(client.UUID))
 							{
 								poi.NearbyAvatars[range].Remove(client.UUID);
 							}
-						}
-					}
-					else if (poi.Type == PositionState.TargetType.Parcel)
-					{
-						if (poi.Target == client.currentParcelUUID 
-							&& !poi.NearbyAvatars[0].Contains(client.UUID))
-						{
-							poi.NearbyAvatars[0].Add(client.UUID);
-							poi.TriggerOnRangeChange(0);
-						}
-						else if (poi.NearbyAvatars[0].Contains(client.UUID) 
-							&& poi.Target != client.currentParcelUUID)
-						{
-							poi.NearbyAvatars[0].Remove(client.UUID);
 						}
 					}
 					else if (poi.Type == PositionState.TargetType.Region)
@@ -176,7 +162,7 @@ namespace OpenChatbag
 						{
 							OpenChatbagModule.os_log.Debug("[Chatbag]: Movement into region " + poi.Target);
 							poi.NearbyAvatars[0].Add(client.UUID);
-							poi.TriggerOnRangeChange(0);
+							poi.TriggerOnRangeChange(client, 0);
 						}
 						else if (poi.NearbyAvatars[0].Contains(client.UUID) 
 							&& poi.Target != client.Scene.RegionInfo.RegionID)

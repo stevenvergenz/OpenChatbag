@@ -92,8 +92,11 @@ namespace OpenChatbag
 					}
 
 					reader.ReadEndElement(); // end triggers
-
-					reader.ReadStartElement("responses"); // read responses
+					
+					// read responses
+					i.responses = ParseResponses(reader);
+					
+					/*reader.ReadStartElement("responses"); // read responses
 					while (reader.IsStartElement("response"))
 					{
 						int channel = 0;
@@ -108,6 +111,8 @@ namespace OpenChatbag
 						i.responses.Add(r);
 					}
 					reader.ReadEndElement(); // end responses
+					*/
+					
 					reader.ReadEndElement(); // end interaction
 					chatbag.InteractionList.Add(i);
 				}
@@ -127,15 +132,15 @@ namespace OpenChatbag
 			if( reader.IsStartElement("response") )
 			{
 				int channel = 0;
-				Interaction.VolumeType volume =
-					Interaction.Response.ParseVolume(reader.GetAttribute("volume"));
-				if( volume != Interaction.VolumeType.Private )
+				Response.VolumeType volume =
+					Response.ParseVolume(reader.GetAttribute("volume"));
+				if( volume != Response.VolumeType.Private )
 					channel = int.Parse(reader.GetAttribute("channel"));
 				reader.ReadStartElement(); // read response
 				string text = reader.ReadString();
 				reader.ReadEndElement(); // end response
 				
-				return new Response(channel, volume, text);
+				return new Response(text, channel, volume);
 			}
 			else if( reader.IsStartElement("responses") )
 			{

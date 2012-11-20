@@ -224,7 +224,7 @@ namespace OpenChatbag
 			OpenChatbagModule.os_log.Debug("[Chatbag]: Message delivered to " + client.Name);
 		}
 
-		public static void DeliverPrimMessage(UUID prim, string senderName, int channel, Interaction.VolumeType volume, string message)
+		public static void DeliverPrimMessage(UUID prim, string senderName, int channel, Response.VolumeType volume, string message)
 		{
 			SceneObjectPart part = null;
 			foreach (Scene s in OpenChatbagModule.Scenes){
@@ -237,9 +237,9 @@ namespace OpenChatbag
 			}
 
 			ChatTypeEnum type = ChatTypeEnum.Say;
-			if (volume == Interaction.VolumeType.Whisper) type = ChatTypeEnum.Whisper;
-			else if (volume == Interaction.VolumeType.Say) type = ChatTypeEnum.Say;
-			else if (volume == Interaction.VolumeType.Shout) type = ChatTypeEnum.Shout;
+			if (volume == Response.VolumeType.Whisper) type = ChatTypeEnum.Whisper;
+			else if (volume == Response.VolumeType.Say) type = ChatTypeEnum.Say;
+			else if (volume == Response.VolumeType.Shout) type = ChatTypeEnum.Shout;
 
 			part.ParentGroup.Scene.SimChat(Utils.StringToBytes(message), type, channel, 
 				part.AbsolutePosition, senderName, prim, false);
