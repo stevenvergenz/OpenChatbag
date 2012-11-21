@@ -68,7 +68,7 @@ namespace OpenChatbag
 								break;
 								
 							case Response.VolumeType.Private:
-								ChatHandler.DeliverPrivateMessage(matchingPhrase.SenderUUID, Name, r.Text);
+								ChatHandler.DelayDeliverPrivateMessage(matchingPhrase.SenderUUID, Name, r.Text, 500);
 								break;
 							}
 						}

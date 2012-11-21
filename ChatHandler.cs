@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 using OpenMetaverse;
 using OpenSim.Framework;
@@ -202,7 +203,13 @@ namespace OpenChatbag
 		}
 
 		#region outgoing chat functions
-		
+		public static void DelayDeliverPrivateMessage(UUID avatar, string senderName, string message, int delay){
+			WaitCallback callback = delegate(object state) {
+				Thread.Sleep(delay);
+				DeliverPrivateMessage(avatar, senderName, message);
+			};
+			ThreadPool.QueueUserWorkItem(callback);
+		}
 		public static void DeliverPrivateMessage(UUID avatar, string senderName, string message)
 		{
 			Scene scene = null;
@@ -246,11 +253,6 @@ namespace OpenChatbag
 			OpenChatbagModule.os_log.Debug("[Chatbag]: Message delivered to " + part.Name);
 		}
 
-
-		public static void DeliverParcelMessage(UUID parcelId, string senderName, int channel, string message)
-		{
-			
-		}
 
 		public static void DeliverRegionMessage(UUID regionId, string senderName, int channel, string message)
 		{

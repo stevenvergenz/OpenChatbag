@@ -84,7 +84,7 @@ namespace OpenChatbag
 						}
 						else if (reader.Name == triggerTypes[1]) // proximityTrigger
 						{
-							if( !chatbag is PrimChatbag){
+							if( !(chatbag is PrimChatbag)){
 								OpenChatbagModule.os_log.WarnFormat(
 									"[Chatbag]: Proximity triggers on {0} will be ignored, they only work on Prim chatbags!",
 									chatbag.Name);
