@@ -11,8 +11,15 @@
       <triggers>
         <chatTrigger channel="0" phrase="hi|hello_world"/>
       </triggers>
-      <responses selectionMode="random">
+      <responses selectionMode="all">
         <response channel="0" volume="private">Hello yourself!</response>
+        <responses selectionMode="random">
+          <response channel="0" volume="global">Someone called?</response>
+        </responses>
+        <responses selectionMode="next">
+          <response channel="0" volume="region">Region message 1</response>
+          <response channel="0" volume="region">Region message 2</response>
+        </responses>
       </responses>
     </interaction>
     <interaction name="greetings">

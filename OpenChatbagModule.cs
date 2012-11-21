@@ -65,7 +65,7 @@ namespace OpenChatbag
 			}
 			catch (Exception e)
 			{
-				os_log.Error("[OpenChatbag]: Failed to load config file, loading console only!", e);
+				os_log.Error("[OpenChatbag]: Failed to load config file, loading console only! ", e);
 				chatbags = new List<Chatbag>();
 				ConsoleChatbag console = new ConsoleChatbag(101010);
 				console.AfterInteractionsSet();

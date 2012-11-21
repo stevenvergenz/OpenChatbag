@@ -18,7 +18,6 @@ namespace OpenChatbag
 			// add "reload console" command
 			i = new Interaction("Reload Config");
 			i.triggerList.addTrigger(new ChatTrigger("reload_config", channel));
-			
 			i.responses = new Response("The OpenChatbag config file has been reloaded",
 			                           0, Response.VolumeType.Private);
 			InteractionList.Add(i);

@@ -17,7 +17,8 @@
 	<xs:simpleType name="selectionType">
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="random"/>
-			<xs:enumeration value="sequential"/>
+			<xs:enumeration value="next"/>
+			<xs:enumeration value="all"/>
 		</xs:restriction>
 	</xs:simpleType>
 
@@ -132,9 +133,10 @@
 	
 	<xs:element name="responses">
 		<xs:complexType>
-			<xs:sequence>
-				<xs:element ref="response" minOccurs="1" maxOccurs="unbounded"/>
-			</xs:sequence>
+			<xs:choice maxOccurs="unbounded">
+				<xs:element ref="responses"/>
+				<xs:element ref="response"/>
+			</xs:choice>
 			<xs:attribute name="selectionMode" type="selectionType" default="random"/>
 		</xs:complexType>
 	</xs:element>

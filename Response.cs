@@ -12,6 +12,8 @@ namespace OpenChatbag
 		private int _responseCounter;
 		private ResponseSelectionMode _mode;
 		
+		protected ResponseList() { }
+		
 		public ResponseList(List<ResponseList> list, ResponseSelectionMode mode)
 		{
 			_list = list;

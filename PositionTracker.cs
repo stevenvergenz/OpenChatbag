@@ -184,7 +184,8 @@ namespace OpenChatbag
 				lock (tracker)
 				{
 					tracker.Position = ToGlobalCoordinates(sop.ParentGroup.Scene.RegionInfo, sop.AbsolutePosition);
-					Dictionary<float, bool> sendUpdate = new Dictionary<float, bool>();
+					//Dictionary<float, bool> sendUpdate = new Dictionary<float, bool>();
+					List<float> sendUpdate = new List<float>();
 					
 					foreach (ScenePresence presence in sop.ParentGroup.Scene.GetScenePresences())
 					//sop.ParentGroup.Scene.SceneGraph.ForEachAvatar( new Action<ScenePresence>( presence =>
@@ -193,14 +194,11 @@ namespace OpenChatbag
 						float range = Vector3.Distance(coord, tracker.Position);
 						foreach (float radius in tracker.NearbyRadii)
 						{
-							if (range < radius && !sendUpdate.ContainsKey(radius))
-								sendUpdate.Add(radius, true);
+							if (range < radius && !sendUpdate.Contains(radius)){
+								tracker.TriggerOnRangeChange(presence, radius);
+								sendUpdate.Add(radius);
+							}
 						}
-					}
-					foreach (float range in sendUpdate.Keys)
-					{
-						if( sendUpdate[range] )
-							tracker.TriggerOnRangeChange(range);
 					}
 				}
 			}
