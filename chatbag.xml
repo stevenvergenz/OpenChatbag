@@ -9,7 +9,10 @@
   <globalChatbag name="World Greeter">
 	<interaction name="hello">
       <triggers>
-        <chatTrigger channel="0" phrase="hi|hello_world"/>
+        <fields>
+          <field key="greeting" regex="(?i:hi|hello|hey|what's up)"/>
+        </fields>
+        <chatTrigger channel="0" phrase="{greeting}_world"/>
       </triggers>
       <responses selectionMode="all">
         <response channel="0" volume="private">Hello yourself!</response>

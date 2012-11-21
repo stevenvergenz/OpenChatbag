@@ -50,6 +50,7 @@ namespace OpenChatbag
 				{
 					if (trig.Phrase == keyphrase && FinalChatCheck(keyphrase, matchingPhrase))
 					{
+						OpenChatbagModule.os_log.DebugFormat("[Chatbag]: Interaction {0}.{1} triggered", Name, i.Name);
 						List<Response> message = i.responses.GetResponse();
 						foreach( Response r in message ){
 							switch(r.Volume){
