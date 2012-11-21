@@ -58,7 +58,7 @@ namespace OpenChatbag
 			case "all":
 				return ResponseSelectionMode.All;
 			default:
-				OpenChatbagModule.os_log.ErrorFormat("Not a recognized selection level '{0}', defaulting to 'random'", input);
+				OpenChatbagModule.os_log.ErrorFormat("[Chatbag]: Not a recognized selection level '{0}', defaulting to 'random'", input);
 				return ResponseSelectionMode.Random;
 			
 			}

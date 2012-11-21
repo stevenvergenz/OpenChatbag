@@ -210,6 +210,7 @@ namespace OpenChatbag
 			};
 			ThreadPool.QueueUserWorkItem(callback);
 		}
+		
 		public static void DeliverPrivateMessage(UUID avatar, string senderName, string message)
 		{
 			Scene scene = null;
@@ -230,7 +231,15 @@ namespace OpenChatbag
 			scene.SimChatToAgent(avatar, Utils.StringToBytes(message), Vector3.Zero, senderName, UUID.Zero, false);
 			OpenChatbagModule.os_log.Debug("[Chatbag]: Message delivered to " + client.Name);
 		}
-
+		
+		public static void DelayDeliverPrimMessage(UUID prim, string senderName, int channel, Response.VolumeType volume, string message, int delay){
+			WaitCallback callback = delegate(object state) {
+				Thread.Sleep(delay);
+				DeliverPrimMessage(prim, senderName, channel, volume, message);
+			};
+			ThreadPool.QueueUserWorkItem(callback);
+		}
+		
 		public static void DeliverPrimMessage(UUID prim, string senderName, int channel, Response.VolumeType volume, string message)
 		{
 			SceneObjectPart part = null;
@@ -252,7 +261,14 @@ namespace OpenChatbag
 				part.AbsolutePosition, senderName, prim, false);
 			OpenChatbagModule.os_log.Debug("[Chatbag]: Message delivered to " + part.Name);
 		}
-
+		
+		public static void DelayDeliverRegionMessage(UUID regionId, string senderName, int channel, string message, int delay){
+			WaitCallback callback = delegate(object state) {
+				Thread.Sleep(delay);
+				DeliverRegionMessage(regionId, senderName, channel, message);
+			};
+			ThreadPool.QueueUserWorkItem(callback);
+		}
 
 		public static void DeliverRegionMessage(UUID regionId, string senderName, int channel, string message)
 		{
@@ -268,6 +284,14 @@ namespace OpenChatbag
 				}
 			}
 			OpenChatbagModule.os_log.Debug("[Chatbag]: Messaged failed to deliver to region " + regionId.ToString());
+		}
+		
+		public static void DelayDeliverWorldMessage(string senderName, int channel, string message, int delay){
+			WaitCallback callback = delegate(object state) {
+				Thread.Sleep(delay);
+				DeliverWorldMessage(senderName, channel, message);
+			};
+			ThreadPool.QueueUserWorkItem(callback);
 		}
 
 		public static void DeliverWorldMessage(string senderName, int channel, string message)

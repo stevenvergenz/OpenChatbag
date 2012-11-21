@@ -10,6 +10,8 @@ namespace OpenChatbag
 {
 	public abstract class Chatbag
 	{
+		private static readonly int DEFAULT_CHAT_DELAY = 500;
+		
 		public string Name { get; set; }
 		public List<Interaction> InteractionList { get; protected set; }
 		public PositionState tracker;
@@ -52,23 +54,24 @@ namespace OpenChatbag
 						foreach( Response r in message ){
 							switch(r.Volume){
 							case Response.VolumeType.Global:
-								ChatHandler.DeliverWorldMessage(Name, r.Channel, r.Text);
+								ChatHandler.DelayDeliverWorldMessage(Name, r.Channel, r.Text, DEFAULT_CHAT_DELAY);
 								break;
 								
 							case Response.VolumeType.Region:
-								ChatHandler.DeliverRegionMessage(matchingPhrase.Scene.RegionInfo.RegionID, 
-								                                 Name, r.Channel, r.Text);
+								ChatHandler.DelayDeliverRegionMessage(
+									matchingPhrase.Scene.RegionInfo.RegionID, Name, r.Channel, r.Text, DEFAULT_CHAT_DELAY);
 								break;
 								
 							case Response.VolumeType.Shout:
 							case Response.VolumeType.Say:
 							case Response.VolumeType.Whisper:
-								ChatHandler.DeliverPrimMessage(tracker.Target, Name, 
-								                               r.Channel, r.Volume, r.Text);
+								ChatHandler.DelayDeliverPrimMessage(
+									tracker.Target, Name, r.Channel, r.Volume, r.Text, DEFAULT_CHAT_DELAY);
 								break;
 								
 							case Response.VolumeType.Private:
-								ChatHandler.DelayDeliverPrivateMessage(matchingPhrase.SenderUUID, Name, r.Text, 500);
+								ChatHandler.DelayDeliverPrivateMessage(
+									matchingPhrase.SenderUUID, Name, r.Text, DEFAULT_CHAT_DELAY);
 								break;
 							}
 						}
