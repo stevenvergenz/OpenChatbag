@@ -49,6 +49,7 @@ namespace OpenChatbag
 		
 		public static ResponseSelectionMode ParseSelectionMode(string input)
 		{
+			if( input == null ) input = "";
 			switch( input.ToLower() ){
 			case "random":
 				return ResponseSelectionMode.Random;
@@ -57,7 +58,8 @@ namespace OpenChatbag
 			case "all":
 				return ResponseSelectionMode.All;
 			default:
-				throw new ArgumentException("Not a recognized selection level: "+input);
+				OpenChatbagModule.os_log.ErrorFormat("Not a recognized selection level '{0}', defaulting to 'random'", input);
+				return ResponseSelectionMode.Random;
 			
 			}
 		}
@@ -89,6 +91,7 @@ namespace OpenChatbag
 		
 		public static VolumeType ParseVolume(string vol)
 		{
+			if( vol == null ) vol = "";
 			switch (vol.ToLower())
 			{
 				case "global":
@@ -104,7 +107,8 @@ namespace OpenChatbag
 				case "private":
 					return VolumeType.Private;
 				default:
-					throw new ArgumentException("Not a recognized volume level: " + vol);
+					OpenChatbagModule.os_log.ErrorFormat("[Chatbag]: Not a recognized volume level '{0}', defaulting to 'private'", vol);
+					return VolumeType.Private;
 			}
 		}
 	}
