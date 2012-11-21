@@ -78,42 +78,7 @@ namespace OpenChatbag
 			}
 		}
 
-		public virtual void ProcessRangeChange(PositionState state, ScenePresence client, float range)
-		{
-			foreach( Interaction i in InteractionList)
-			{
-				foreach( ProximityTrigger trig in i.triggerList.GetTriggers(typeof(ProximityTrigger)))
-				{
-					if( trig.Range == range ){
-						List<Response> message = i.responses.GetResponse();
-						foreach( Response r in message ){
-							switch(r.Volume){
-							case Response.VolumeType.Global:
-								ChatHandler.DeliverWorldMessage(Name, r.Channel, r.Text);
-								break;
-								
-							case Response.VolumeType.Region:
-								ChatHandler.DeliverRegionMessage(client.Scene.RegionInfo.RegionID, 
-								                                 Name, r.Channel, r.Text);
-								break;
-								
-							case Response.VolumeType.Shout:
-							case Response.VolumeType.Say:
-							case Response.VolumeType.Whisper:
-								ChatHandler.DeliverPrimMessage(tracker.Target, Name, 
-								                               r.Channel, r.Volume, r.Text);
-								break;
-								
-							case Response.VolumeType.Private:
-								ChatHandler.DeliverPrivateMessage(client.UUID, Name, r.Text);
-								break;
-							}
-						}
-						break;
-					}
-				}
-			}
-		}
+		public virtual void ProcessRangeChange(PositionState state, ScenePresence client, float range){}
 		
 		public virtual bool FinalChatCheck(string keyphrase, OSChatMessage match) { return true; }
 
@@ -187,6 +152,43 @@ namespace OpenChatbag
 				(matchingPhrase.Type == ChatTypeEnum.Say && range <= OpenChatbagModule.SayDistance) ||
 				(matchingPhrase.Type == ChatTypeEnum.Shout && range <= OpenChatbagModule.ShoutDistance);
 
+		}
+		
+		public override void ProcessRangeChange(PositionState state, ScenePresence client, float range)
+		{
+			foreach( Interaction i in InteractionList)
+			{
+				foreach( ProximityTrigger trig in i.triggerList.GetTriggers(typeof(ProximityTrigger)))
+				{
+					if( trig.Range == range ){
+						List<Response> message = i.responses.GetResponse();
+						foreach( Response r in message ){
+							switch(r.Volume){
+							case Response.VolumeType.Global:
+								ChatHandler.DeliverWorldMessage(Name, r.Channel, r.Text);
+								break;
+								
+							case Response.VolumeType.Region:
+								ChatHandler.DeliverRegionMessage(client.Scene.RegionInfo.RegionID, 
+								                                 Name, r.Channel, r.Text);
+								break;
+								
+							case Response.VolumeType.Shout:
+							case Response.VolumeType.Say:
+							case Response.VolumeType.Whisper:
+								ChatHandler.DeliverPrimMessage(tracker.Target, Name, 
+								                               r.Channel, r.Volume, r.Text);
+								break;
+								
+							case Response.VolumeType.Private:
+								ChatHandler.DeliverPrivateMessage(client.UUID, Name, r.Text);
+								break;
+							}
+						}
+						break;
+					}
+				}
+			}
 		}
 	}
 }

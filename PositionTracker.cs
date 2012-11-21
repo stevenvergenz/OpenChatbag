@@ -91,6 +91,7 @@ namespace OpenChatbag
 
 		private Dictionary<UUID, PositionState> TrackerMap;
 		
+		#region tracker list handling
 		public PositionState addTracker(UUID target)
 		{
 			if( TrackerMap.ContainsKey(target) )
@@ -128,7 +129,9 @@ namespace OpenChatbag
 		{
 			TrackerMap.Clear();
 		}
-
+		
+		#endregion
+		
 		public void UpdateAvatarPosition(ScenePresence client)
 		{
 			Vector3 avatarPosition = ToGlobalCoordinates(client.Scene.RegionInfo, client.AbsolutePosition);

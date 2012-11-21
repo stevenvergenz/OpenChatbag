@@ -22,14 +22,6 @@
         </responses>
       </responses>
     </interaction>
-    <interaction name="greetings">
-      <triggers>
-        <proximityTrigger range="5"/>
-      </triggers>
-      <responses selectionMode="random">
-        <response volume="global" channel="0">Welcome to the world of Opensim!</response>
-      </responses>
-    </interaction>
   </globalChatbag>
 	
   <regionChatbag name="Region Greeter" uuid="9d731cb0-47ed-4a80-baa1-b74eba7cb21d">
@@ -39,14 +31,6 @@
       </triggers>
       <responses selectionMode="random">
         <response channel="0" volume="private">Hello yourself!</response>
-      </responses>
-    </interaction>
-    <interaction name="greetings">
-      <triggers>
-        <proximityTrigger range="5"/>
-      </triggers>
-      <responses selectionMode="random">
-        <response volume="region" channel="0">Welcome to the local region of Opensim!</response>
       </responses>
     </interaction>
   </regionChatbag>
