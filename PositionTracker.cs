@@ -190,8 +190,14 @@ namespace OpenChatbag
 					//Dictionary<float, bool> sendUpdate = new Dictionary<float, bool>();
 					List<float> sendUpdate = new List<float>();
 					
-					foreach (ScenePresence presence in sop.ParentGroup.Scene.GetScenePresences())
-					//sop.ParentGroup.Scene.SceneGraph.ForEachAvatar( new Action<ScenePresence>( presence =>
+					// build a list of avatars in the scene
+					List<ScenePresence> presences = new List<ScenePresence>();
+					sop.ParentGroup.Scene.SceneGraph.ForEachAvatar(delegate(ScenePresence obj){
+						presences.Add(obj);
+					});
+					
+					foreach( ScenePresence presence in presences )
+					//foreach (ScenePresence presence in sop.ParentGroup.Scene.GetScenePresences())
 					{
 						Vector3 coord = ToGlobalCoordinates(sop.ParentGroup.Scene.RegionInfo, sop.AbsolutePosition);
 						float range = Vector3.Distance(coord, tracker.Position);

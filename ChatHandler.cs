@@ -323,7 +323,7 @@ namespace OpenChatbag
 				{
 					s.SimChat(Utils.StringToBytes(message), ChatTypeEnum.Region, channel,
 						new Vector3(0, 0, 0), senderName, UUID.Zero, false);
-					OpenChatbagModule.os_log.Debug("[Chatbag]: Message delivered to " + s.Name);
+					OpenChatbagModule.os_log.Debug("[Chatbag]: Message delivered to " + s.RegionInfo.RegionName);
 					return;
 				}
 			}
