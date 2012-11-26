@@ -18,8 +18,8 @@ namespace OpenChatbag
 			// add "reload console" command
 			i = new Interaction("Reload Config");
 			i.triggerList.addTrigger(new ChatTrigger("reload_config", channel));
-			i.responses.Add(new Interaction.Response(0, Interaction.VolumeType.Private,
-			                                         "The OpenChatbag config file has been reloaded"));
+			i.responses = new Response("The OpenChatbag config file has been reloaded",
+			                           0, Response.VolumeType.Private);
 			InteractionList.Add(i);
 		}
 
@@ -31,17 +31,16 @@ namespace OpenChatbag
 				{
 					ChatHandler.ChatCommand cmd = new ChatHandler.ChatCommand(
 						trig.Channel, trig.Phrase, ProcessChat);
-					cmd.Hazardous = true;
 					ChatHandler.Instance.RegisterCommand(cmd);
 				}
 			}
 		}
 
-		public override void ProcessChat(string keyphrase, OSChatMessage matchingPhrase)
+		public override void ProcessChat(ChatHandler.MatchContainer match)
 		{
-			if (keyphrase == "reload_config") ReloadConfig();
+			if (match.Command.Phrase == "reload_config") ReloadConfig();
 			
-			base.ProcessChat(keyphrase, matchingPhrase);
+			base.ProcessChat(match);
 		}
 
 		public void ReloadConfig()

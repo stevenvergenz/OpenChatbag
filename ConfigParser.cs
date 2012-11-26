@@ -84,6 +84,11 @@ namespace OpenChatbag
 						}
 						else if (reader.Name == triggerTypes[1]) // proximityTrigger
 						{
+							if( !(chatbag is PrimChatbag)){
+								OpenChatbagModule.os_log.WarnFormat(
+									"[Chatbag]: Proximity triggers on {0} will be ignored, they only work on Prim chatbags!",
+									chatbag.Name);
+							}
 							t = new ProximityTrigger(float.Parse(reader.GetAttribute("range")));
 						}
 						
@@ -92,8 +97,11 @@ namespace OpenChatbag
 					}
 
 					reader.ReadEndElement(); // end triggers
-
-					reader.ReadStartElement("responses"); // read responses
+					
+					// read responses
+					i.responses = ParseResponses(reader);
+					
+					/*reader.ReadStartElement("responses"); // read responses
 					while (reader.IsStartElement("response"))
 					{
 						int channel = 0;
@@ -108,6 +116,8 @@ namespace OpenChatbag
 						i.responses.Add(r);
 					}
 					reader.ReadEndElement(); // end responses
+					*/
+					
 					reader.ReadEndElement(); // end interaction
 					chatbag.InteractionList.Add(i);
 				}
@@ -120,6 +130,39 @@ namespace OpenChatbag
 			reader.Close();
 
 			return ret;
+		}
+		
+		private static ResponseList ParseResponses(XmlReader reader)
+		{
+			if( reader.IsStartElement("response") )
+			{
+				int channel = 0;
+				Response.VolumeType volume =
+					Response.ParseVolume(reader.GetAttribute("volume"));
+				if( volume != Response.VolumeType.Private )
+					channel = int.Parse(reader.GetAttribute("channel"));
+				reader.ReadStartElement(); // read response
+				string text = reader.ReadString();
+				reader.ReadEndElement(); // end response
+				
+				return new Response(text, channel, volume);
+			}
+			else if( reader.IsStartElement("responses") )
+			{
+				ResponseList.ResponseSelectionMode mode = ResponseList.ParseSelectionMode(reader.GetAttribute("selectionMode"));
+				List<ResponseList> list = new List<ResponseList>();
+				reader.ReadStartElement("responses");
+				while( reader.IsStartElement() )
+				{
+					list.Add( ParseResponses(reader) );
+				}
+				reader.ReadEndElement(); // end responses
+				return new ResponseList(list, mode);
+			}
+			else
+			{
+				throw new XmlException("Unexpected tag in response list: "+reader.Name);
+			}
 		}
 	}
 }

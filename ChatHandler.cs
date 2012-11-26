@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 using OpenMetaverse;
 using OpenSim.Framework;
@@ -13,10 +14,19 @@ using log4net;
 
 namespace OpenChatbag
 {
-	public delegate void ChatHandlerDelegate(string command, OSChatMessage matchingPhrase);
+	public delegate void ChatHandlerDelegate(ChatHandler.MatchContainer match);
 
 	public class ChatHandler
 	{
+		public struct MatchContainer {
+			public ChatCommand Command;
+			public string[] MatchedWording;
+			public OSChatMessage MatchedMessage;
+			public MatchContainer(ChatCommand command, string[] matchedWording, OSChatMessage matchedMessage){
+				Command = command; MatchedWording = matchedWording; MatchedMessage = matchedMessage;
+			}
+		}
+		
 		List<ChatCommand> commandList;
 		Dictionary<string, string> fieldValidateList;
 
@@ -40,7 +50,6 @@ namespace OpenChatbag
 
 		public class ChatCommand : IEquatable<ChatCommand>
 		{
-			public bool Hazardous = false;
 			public int Channel;
 			public string Phrase;
 			public ChatHandlerDelegate Handler;
@@ -174,34 +183,77 @@ namespace OpenChatbag
 			} // for each command
 			return matchList;
 		}
-
+		
+		public List<MatchContainer> DetectCommand2(OSChatMessage message)
+		{
+			List<MatchContainer> matches = new List<MatchContainer>();
+			string msg = message.Message;
+			
+			foreach( ChatCommand command in commandList )
+			{
+				if( command.Channel != message.Channel ) continue;
+				
+				// convert command syntax to regex
+				// 'a|b_c' goes to '(a|b).*(c)'
+				string cmdRE = command.Phrase;
+				cmdRE = "(?i)(" + cmdRE + ")";
+				cmdRE = cmdRE.Replace("_", ")\\b.*\\b(");
+				
+				// replace field identifiers with appropriate regex
+				Regex fieldPattern = new Regex(@"\{([A-Za-z][A-Za-z0-9]*)\}");
+				Match m = fieldPattern.Match(cmdRE);
+				while(m.Success)
+				{
+					string key = m.Groups[1].Value;
+					cmdRE = cmdRE.Replace(
+						String.Format("{{{0}}}", key), 
+						String.Format ("(?-i){0}(?i)", fieldValidateList[key]));
+					m = m.NextMatch();
+				}
+				
+				// compile newfound regular expression
+				//Console.Out.WriteLine("Command regex: "+cmdRE);
+				Regex commandMatcher = new Regex(cmdRE);
+				
+				// if match
+				m = commandMatcher.Match(msg);
+				if( m.Success ){
+					// build new string out of matching words
+					string[] captures = new string[m.Groups.Count-1];
+					for(int i=0; i<m.Groups.Count; i++){
+						if( i==0 ) continue;
+						captures[i-1] = m.Groups[i].Value;
+					}
+					
+					// add to return list
+					matches.Add( new MatchContainer(command, captures, message) );
+				}
+			}
+			
+			return matches;
+		}
+		
 		public void HandleChatInput(object sender, OSChatMessage msg)
 		{
 			if (msg.Type == ChatTypeEnum.StartTyping || msg.Type == ChatTypeEnum.StopTyping) return;
 
-			List<string> matchList = DetectCommand(msg.Message);
+			List<MatchContainer> matchList = DetectCommand2(msg);
 
-			ChatHandlerDelegate hazardHandler = null;
-			foreach( string cmdstring in matchList ){
-				foreach (ChatCommand cmd in commandList){
-					if (cmd.Channel == msg.Channel && cmd.Phrase == cmdstring){
-						if (!cmd.Hazardous){
-							cmd.Handler(cmdstring, msg);
-						}
-						else {
-							hazardHandler = cmd.Handler;
-							break;
-						}
-					}
-				}
-
-				if (hazardHandler != null)
-					hazardHandler(cmdstring, msg);
+			foreach( MatchContainer match in matchList )
+			{
+				match.Command.Handler(match);
 			}
 
 		}
 
 		#region outgoing chat functions
+		public static void DelayDeliverPrivateMessage(UUID avatar, string senderName, string message, int delay){
+			WaitCallback callback = delegate(object state) {
+				Thread.Sleep(delay);
+				DeliverPrivateMessage(avatar, senderName, message);
+			};
+			ThreadPool.QueueUserWorkItem(callback);
+		}
 		
 		public static void DeliverPrivateMessage(UUID avatar, string senderName, string message)
 		{
@@ -223,8 +275,16 @@ namespace OpenChatbag
 			scene.SimChatToAgent(avatar, Utils.StringToBytes(message), Vector3.Zero, senderName, UUID.Zero, false);
 			OpenChatbagModule.os_log.Debug("[Chatbag]: Message delivered to " + client.Name);
 		}
-
-		public static void DeliverPrimMessage(UUID prim, string senderName, int channel, Interaction.VolumeType volume, string message)
+		
+		public static void DelayDeliverPrimMessage(UUID prim, string senderName, int channel, Response.VolumeType volume, string message, int delay){
+			WaitCallback callback = delegate(object state) {
+				Thread.Sleep(delay);
+				DeliverPrimMessage(prim, senderName, channel, volume, message);
+			};
+			ThreadPool.QueueUserWorkItem(callback);
+		}
+		
+		public static void DeliverPrimMessage(UUID prim, string senderName, int channel, Response.VolumeType volume, string message)
 		{
 			SceneObjectPart part = null;
 			foreach (Scene s in OpenChatbagModule.Scenes){
@@ -237,19 +297,21 @@ namespace OpenChatbag
 			}
 
 			ChatTypeEnum type = ChatTypeEnum.Say;
-			if (volume == Interaction.VolumeType.Whisper) type = ChatTypeEnum.Whisper;
-			else if (volume == Interaction.VolumeType.Say) type = ChatTypeEnum.Say;
-			else if (volume == Interaction.VolumeType.Shout) type = ChatTypeEnum.Shout;
+			if (volume == Response.VolumeType.Whisper) type = ChatTypeEnum.Whisper;
+			else if (volume == Response.VolumeType.Say) type = ChatTypeEnum.Say;
+			else if (volume == Response.VolumeType.Shout) type = ChatTypeEnum.Shout;
 
 			part.ParentGroup.Scene.SimChat(Utils.StringToBytes(message), type, channel, 
 				part.AbsolutePosition, senderName, prim, false);
 			OpenChatbagModule.os_log.Debug("[Chatbag]: Message delivered to " + part.Name);
 		}
-
-
-		public static void DeliverParcelMessage(UUID parcelId, string senderName, int channel, string message)
-		{
-			
+		
+		public static void DelayDeliverRegionMessage(UUID regionId, string senderName, int channel, string message, int delay){
+			WaitCallback callback = delegate(object state) {
+				Thread.Sleep(delay);
+				DeliverRegionMessage(regionId, senderName, channel, message);
+			};
+			ThreadPool.QueueUserWorkItem(callback);
 		}
 
 		public static void DeliverRegionMessage(UUID regionId, string senderName, int channel, string message)
@@ -266,6 +328,14 @@ namespace OpenChatbag
 				}
 			}
 			OpenChatbagModule.os_log.Debug("[Chatbag]: Messaged failed to deliver to region " + regionId.ToString());
+		}
+		
+		public static void DelayDeliverWorldMessage(string senderName, int channel, string message, int delay){
+			WaitCallback callback = delegate(object state) {
+				Thread.Sleep(delay);
+				DeliverWorldMessage(senderName, channel, message);
+			};
+			ThreadPool.QueueUserWorkItem(callback);
 		}
 
 		public static void DeliverWorldMessage(string senderName, int channel, string message)

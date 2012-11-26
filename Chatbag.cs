@@ -10,6 +10,8 @@ namespace OpenChatbag
 {
 	public abstract class Chatbag
 	{
+		private static readonly int DEFAULT_CHAT_DELAY = 500;
+		
 		public string Name { get; set; }
 		public List<Interaction> InteractionList { get; protected set; }
 		public PositionState tracker;
@@ -40,35 +42,39 @@ namespace OpenChatbag
 			}
 		}
 
-		public virtual void ProcessChat(string keyphrase, OSChatMessage matchingPhrase) 
+		public virtual void ProcessChat(ChatHandler.MatchContainer match) 
 		{
 			foreach (Interaction i in InteractionList)
 			{
 				foreach (ChatTrigger trig in i.triggerList.GetTriggers(typeof(ChatTrigger)))
 				{
-					if (trig.Phrase == keyphrase && FinalChatCheck(keyphrase, matchingPhrase))
+					if (trig.Phrase == match.Command.Phrase && FinalChatCheck(match.Command.Phrase, match.MatchedMessage))
 					{
-						Interaction.Response message = i.GetResponse();
-						switch(message.Volume){
-						case Interaction.VolumeType.Global:
-							ChatHandler.DeliverWorldMessage(Name, message.Channel, message.Text);
-							break;
-							
-						case Interaction.VolumeType.Region:
-							ChatHandler.DeliverRegionMessage(matchingPhrase.Scene.RegionInfo.RegionID, 
-							                                 Name, message.Channel, message.Text);
-							break;
-							
-						case Interaction.VolumeType.Shout:
-						case Interaction.VolumeType.Say:
-						case Interaction.VolumeType.Whisper:
-							ChatHandler.DeliverPrimMessage(tracker.Target, Name, 
-							                               message.Channel, message.Volume, message.Text);
-							break;
-							
-						case Interaction.VolumeType.Private:
-							ChatHandler.DeliverPrivateMessage(matchingPhrase.SenderUUID, Name, message.Text);
-							break;
+						OpenChatbagModule.os_log.DebugFormat("[Chatbag]: Interaction {0}.{1} triggered", Name, i.Name);
+						List<Response> message = i.responses.GetResponse();
+						foreach( Response r in message ){
+							switch(r.Volume){
+							case Response.VolumeType.Global:
+								ChatHandler.DelayDeliverWorldMessage(Name, r.Channel, r.Text, DEFAULT_CHAT_DELAY);
+								break;
+								
+							case Response.VolumeType.Region:
+								ChatHandler.DelayDeliverRegionMessage(
+									match.MatchedMessage.Scene.RegionInfo.RegionID, Name, r.Channel, r.Text, DEFAULT_CHAT_DELAY);
+								break;
+								
+							case Response.VolumeType.Shout:
+							case Response.VolumeType.Say:
+							case Response.VolumeType.Whisper:
+								ChatHandler.DelayDeliverPrimMessage(
+									tracker.Target, Name, r.Channel, r.Volume, r.Text, DEFAULT_CHAT_DELAY);
+								break;
+								
+							case Response.VolumeType.Private:
+								ChatHandler.DelayDeliverPrivateMessage(
+									match.MatchedMessage.SenderUUID, Name, r.Text, DEFAULT_CHAT_DELAY);
+								break;
+							}
 						}
 						break;
 					}
@@ -76,7 +82,7 @@ namespace OpenChatbag
 			}
 		}
 
-		public virtual void ProcessRangeChange(PositionState state, float range) { }
+		public virtual void ProcessRangeChange(PositionState state, ScenePresence client, float range){}
 		
 		public virtual bool FinalChatCheck(string keyphrase, OSChatMessage match) { return true; }
 
@@ -92,20 +98,6 @@ namespace OpenChatbag
 
 		}
 
-		public override void ProcessRangeChange(PositionState state, float range)
-		{
-			OpenChatbagModule.os_log.Debug("[Chatbag]: Checking range change");
-			foreach (Interaction i in InteractionList)
-			{
-				if (i.triggerList.GetTriggers(typeof(ProximityTrigger)).Count != 0)
-				{
-					OpenChatbagModule.os_log.DebugFormat("[Chatbag]: Triggering interaction {0}", i.Name);
-					Interaction.Response response = i.GetResponse();
-					ChatHandler.DeliverWorldMessage(Name, response.Channel, response.Text);
-				}
-			}
-		}
-
 		public override bool FinalChatCheck(string keyphrase, OSChatMessage matchingPhrase)
 		{
 			return true;
@@ -119,18 +111,6 @@ namespace OpenChatbag
 			: base(name, uuid)
 		{
 
-		}
-
-		public override void ProcessRangeChange(PositionState state, float range)
-		{
-			foreach (Interaction i in InteractionList)
-			{
-				if (i.triggerList.GetTriggers(typeof(ProximityTrigger)).Count != 0)
-				{
-					Interaction.Response response = i.GetResponse();
-					ChatHandler.DeliverRegionMessage(state.Target, Name, response.Channel, response.Text);
-				}
-			}
 		}
 
 		public override bool FinalChatCheck(string keyphrase, OSChatMessage matchingPhrase)
@@ -163,21 +143,6 @@ namespace OpenChatbag
 			}
 		}
 
-		public override void ProcessRangeChange(PositionState state, float range)
-		{
-			foreach (Interaction i in InteractionList)
-			{
-				foreach( ProximityTrigger trigger in i.triggerList.GetTriggers(typeof(ProximityTrigger)))
-				{
-					if (range == trigger.Range)
-					{
-						Interaction.Response response = i.GetResponse();
-						ChatHandler.DeliverPrimMessage(state.Target, Name, response.Channel, response.Volume, response.Text);
-					}
-				}
-			}
-		}
-
 		public override bool FinalChatCheck(string keyphrase, OSChatMessage matchingPhrase)
 		{
 			float range = Vector3.Distance(
@@ -191,6 +156,43 @@ namespace OpenChatbag
 				(matchingPhrase.Type == ChatTypeEnum.Say && range <= OpenChatbagModule.SayDistance) ||
 				(matchingPhrase.Type == ChatTypeEnum.Shout && range <= OpenChatbagModule.ShoutDistance);
 
+		}
+		
+		public override void ProcessRangeChange(PositionState state, ScenePresence client, float range)
+		{
+			foreach( Interaction i in InteractionList)
+			{
+				foreach( ProximityTrigger trig in i.triggerList.GetTriggers(typeof(ProximityTrigger)))
+				{
+					if( trig.Range == range ){
+						List<Response> message = i.responses.GetResponse();
+						foreach( Response r in message ){
+							switch(r.Volume){
+							case Response.VolumeType.Global:
+								ChatHandler.DeliverWorldMessage(Name, r.Channel, r.Text);
+								break;
+								
+							case Response.VolumeType.Region:
+								ChatHandler.DeliverRegionMessage(client.Scene.RegionInfo.RegionID, 
+								                                 Name, r.Channel, r.Text);
+								break;
+								
+							case Response.VolumeType.Shout:
+							case Response.VolumeType.Say:
+							case Response.VolumeType.Whisper:
+								ChatHandler.DeliverPrimMessage(tracker.Target, Name, 
+								                               r.Channel, r.Volume, r.Text);
+								break;
+								
+							case Response.VolumeType.Private:
+								ChatHandler.DeliverPrivateMessage(client.UUID, Name, r.Text);
+								break;
+							}
+						}
+						break;
+					}
+				}
+			}
 		}
 	}
 }
