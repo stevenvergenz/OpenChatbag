@@ -42,13 +42,13 @@ namespace OpenChatbag
 			}
 		}
 
-		public virtual void ProcessChat(string keyphrase, OSChatMessage matchingPhrase) 
+		public virtual void ProcessChat(ChatHandler.MatchContainer match) 
 		{
 			foreach (Interaction i in InteractionList)
 			{
 				foreach (ChatTrigger trig in i.triggerList.GetTriggers(typeof(ChatTrigger)))
 				{
-					if (trig.Phrase == keyphrase && FinalChatCheck(keyphrase, matchingPhrase))
+					if (trig.Phrase == match.Command.Phrase && FinalChatCheck(match.Command.Phrase, match.MatchedMessage))
 					{
 						OpenChatbagModule.os_log.DebugFormat("[Chatbag]: Interaction {0}.{1} triggered", Name, i.Name);
 						List<Response> message = i.responses.GetResponse();
@@ -60,7 +60,7 @@ namespace OpenChatbag
 								
 							case Response.VolumeType.Region:
 								ChatHandler.DelayDeliverRegionMessage(
-									matchingPhrase.Scene.RegionInfo.RegionID, Name, r.Channel, r.Text, DEFAULT_CHAT_DELAY);
+									match.MatchedMessage.Scene.RegionInfo.RegionID, Name, r.Channel, r.Text, DEFAULT_CHAT_DELAY);
 								break;
 								
 							case Response.VolumeType.Shout:
@@ -72,7 +72,7 @@ namespace OpenChatbag
 								
 							case Response.VolumeType.Private:
 								ChatHandler.DelayDeliverPrivateMessage(
-									matchingPhrase.SenderUUID, Name, r.Text, DEFAULT_CHAT_DELAY);
+									match.MatchedMessage.SenderUUID, Name, r.Text, DEFAULT_CHAT_DELAY);
 								break;
 							}
 						}

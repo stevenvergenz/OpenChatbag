@@ -31,17 +31,16 @@ namespace OpenChatbag
 				{
 					ChatHandler.ChatCommand cmd = new ChatHandler.ChatCommand(
 						trig.Channel, trig.Phrase, ProcessChat);
-					cmd.Hazardous = true;
 					ChatHandler.Instance.RegisterCommand(cmd);
 				}
 			}
 		}
 
-		public override void ProcessChat(string keyphrase, OSChatMessage matchingPhrase)
+		public override void ProcessChat(ChatHandler.MatchContainer match)
 		{
-			if (keyphrase == "reload_config") ReloadConfig();
+			if (match.Command.Phrase == "reload_config") ReloadConfig();
 			
-			base.ProcessChat(keyphrase, matchingPhrase);
+			base.ProcessChat(match);
 		}
 
 		public void ReloadConfig()

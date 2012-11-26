@@ -14,16 +14,16 @@ using log4net;
 
 namespace OpenChatbag
 {
-	public delegate void ChatHandlerDelegate(string command, OSChatMessage matchingPhrase);
+	public delegate void ChatHandlerDelegate(ChatHandler.MatchContainer match);
 
 	public class ChatHandler
 	{
 		public struct MatchContainer {
-			public string Phrase;
+			public ChatCommand Command;
 			public string[] MatchedWording;
-			public string MatchedMessage;
-			public MatchContainer(string phrase, string[] matchedWording, string matchedMessage){
-				Phrase = phrase; MatchedWording = matchedWording; MatchedMessage = matchedMessage;
+			public OSChatMessage MatchedMessage;
+			public MatchContainer(ChatCommand command, string[] matchedWording, OSChatMessage matchedMessage){
+				Command = command; MatchedWording = matchedWording; MatchedMessage = matchedMessage;
 			}
 		}
 		
@@ -50,7 +50,6 @@ namespace OpenChatbag
 
 		public class ChatCommand : IEquatable<ChatCommand>
 		{
-			public bool Hazardous = false;
 			public int Channel;
 			public string Phrase;
 			public ChatHandlerDelegate Handler;
@@ -185,12 +184,15 @@ namespace OpenChatbag
 			return matchList;
 		}
 		
-		public List<MatchContainer> DetectCommand2(string msg)
+		public List<MatchContainer> DetectCommand2(OSChatMessage message)
 		{
 			List<MatchContainer> matches = new List<MatchContainer>();
+			string msg = message.Message;
 			
 			foreach( ChatCommand command in commandList )
 			{
+				if( command.Channel != message.Channel ) continue;
+				
 				// convert command syntax to regex
 				// 'a|b_c' goes to '(a|b).*(c)'
 				string cmdRE = command.Phrase;
@@ -210,7 +212,7 @@ namespace OpenChatbag
 				}
 				
 				// compile newfound regular expression
-				Console.Out.WriteLine("Command regex: "+cmdRE);
+				//Console.Out.WriteLine("Command regex: "+cmdRE);
 				Regex commandMatcher = new Regex(cmdRE);
 				
 				// if match
@@ -224,8 +226,7 @@ namespace OpenChatbag
 					}
 					
 					// add to return list
-					matches.Add( new MatchContainer(
-						command.Phrase, captures, msg));
+					matches.Add( new MatchContainer(command, captures, message) );
 				}
 			}
 			
@@ -236,24 +237,11 @@ namespace OpenChatbag
 		{
 			if (msg.Type == ChatTypeEnum.StartTyping || msg.Type == ChatTypeEnum.StopTyping) return;
 
-			List<string> matchList = DetectCommand(msg.Message);
+			List<MatchContainer> matchList = DetectCommand2(msg);
 
-			ChatHandlerDelegate hazardHandler = null;
-			foreach( string cmdstring in matchList ){
-				foreach (ChatCommand cmd in commandList){
-					if (cmd.Channel == msg.Channel && cmd.Phrase == cmdstring){
-						if (!cmd.Hazardous){
-							cmd.Handler(cmdstring, msg);
-						}
-						else {
-							hazardHandler = cmd.Handler;
-							break;
-						}
-					}
-				}
-
-				if (hazardHandler != null)
-					hazardHandler(cmdstring, msg);
+			foreach( MatchContainer match in matchList )
+			{
+				match.Command.Handler(match);
 			}
 
 		}
