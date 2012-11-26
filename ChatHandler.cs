@@ -18,11 +18,12 @@ namespace OpenChatbag
 
 	public class ChatHandler
 	{
-		private class TupleList : List<Tuple<string,string> >
-		{
-			public TupleList() : base() { }
-			public void Add(string a, string b){
-				base.Add( new Tuple<string,string>(a, b) );
+		public struct MatchContainer {
+			public string Phrase;
+			public string[] MatchedWording;
+			public string MatchedMessage;
+			public MatchContainer(string phrase, string[] matchedWording, string matchedMessage){
+				Phrase = phrase; MatchedWording = matchedWording; MatchedMessage = matchedMessage;
 			}
 		}
 		
@@ -184,28 +185,28 @@ namespace OpenChatbag
 			return matchList;
 		}
 		
-		public TupleList DetectCommand2(string msg)
+		public List<MatchContainer> DetectCommand2(string msg)
 		{
-			TupleList matches = new TupleList();
+			List<MatchContainer> matches = new List<MatchContainer>();
 			
-			foreach( string command in commandList )
+			foreach( ChatCommand command in commandList )
 			{
 				// convert command syntax to regex
 				// 'a|b_c' goes to '(a|b).*(c)'
-				string cmdRE = command;
-				cmdRE = "(?i:"+cmdRE+")";
-				cmdRE = cmdRE.Replace("_", ").*(");
+				string cmdRE = command.Phrase;
+				cmdRE = "(?i)(" + cmdRE + ")";
+				cmdRE = cmdRE.Replace("_", ")\\b.*\\b(");
 				
 				// replace field identifiers with appropriate regex
 				Regex fieldPattern = new Regex(@"\{([A-Za-z][A-Za-z0-9]*)\}");
-				foreach( Match m in fieldPattern.Matches(cmdRE))
+				Match m = fieldPattern.Match(cmdRE);
+				while(m.Success)
 				{
-					if( !m.Success ) continue;
-					
-					string key = m.Captures[1].Value;
-					cmd = cmdRE.Replace(
-						String.Format("{{{0}}}", key),
-						String.Format("(?:{0})", fieldValidateList[key]));
+					string key = m.Groups[1].Value;
+					cmdRE = cmdRE.Replace(
+						String.Format("{{{0}}}", key), 
+						String.Format ("(?-i){0}(?i)", fieldValidateList[key]));
+					m = m.NextMatch();
 				}
 				
 				// compile newfound regular expression
@@ -213,11 +214,18 @@ namespace OpenChatbag
 				Regex commandMatcher = new Regex(cmdRE);
 				
 				// if match
-				Match match = commandMatcher.Match(msg);
-				if( match.Success ){
+				m = commandMatcher.Match(msg);
+				if( m.Success ){
 					// build new string out of matching words
+					string[] captures = new string[m.Groups.Count-1];
+					for(int i=0; i<m.Groups.Count; i++){
+						if( i==0 ) continue;
+						captures[i-1] = m.Groups[i].Value;
+					}
 					
 					// add to return list
+					matches.Add( new MatchContainer(
+						command.Phrase, captures, msg));
 				}
 			}
 			
