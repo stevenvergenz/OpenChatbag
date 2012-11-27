@@ -271,8 +271,11 @@ namespace OpenChatbag
 				OpenChatbagModule.os_log.ErrorFormat("[Chatbag]: Could not find user {0}", avatar.ToString());
 				return;
 			}
-
-			scene.SimChatToAgent(avatar, Utils.StringToBytes(message), Vector3.Zero, senderName, UUID.Zero, false);
+			
+			client.SendChatMessage(message, (byte)ChatTypeEnum.Say, Vector3.Zero, senderName, UUID.Zero,
+				(byte)ChatSourceType.Object, (byte)ChatAudibleLevel.Fully);
+			//scene.SimChatToAgent(avatar, Utils.StringToBytes(message), Vector3.Zero, senderName, UUID.Zero, false);
+			
 			OpenChatbagModule.os_log.Debug("[Chatbag]: Message delivered to " + client.Name);
 		}
 		
