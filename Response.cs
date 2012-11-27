@@ -58,7 +58,7 @@ namespace OpenChatbag
 			case "all":
 				return ResponseSelectionMode.All;
 			default:
-				OpenChatbagModule.os_log.ErrorFormat("[Chatbag]: Not a recognized selection mode '{0}', defaulting to 'random'", input);
+				OpenChatbagModule.os_log.WarnFormat("[Chatbag]: Not a recognized selection mode '{0}', defaulting to 'random'", input);
 				return ResponseSelectionMode.Random;
 			
 			}
@@ -107,7 +107,7 @@ namespace OpenChatbag
 				case "private":
 					return VolumeType.Private;
 				default:
-					OpenChatbagModule.os_log.ErrorFormat("[Chatbag]: Not a recognized volume level '{0}', defaulting to 'private'", vol);
+					OpenChatbagModule.os_log.WarnFormat("[Chatbag]: Not a recognized volume level '{0}', defaulting to 'private'", vol);
 					return VolumeType.Private;
 			}
 		}

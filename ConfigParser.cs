@@ -21,7 +21,12 @@ namespace OpenChatbag
 			reader.MoveToContent();
 			
 			if(reader.IsStartElement("config")){
-				int channel = int.Parse(reader.GetAttribute("consoleChannel"));
+				string channelString = reader.GetAttribute("consoleChannel");
+				int channel;
+				if( channelString == null || !int.TryParse(channelString, out channel) ){
+					channel = 101010;
+					OpenChatbagModule.os_log.WarnFormat("[Chatbag]: '{0}' is not a valid debug channel, defaulting to 101010", channelString);
+				}
 				ConsoleChatbag console = new ConsoleChatbag(channel);
 				console.AfterInteractionsSet();
 				ret.Add(console);
@@ -31,22 +36,41 @@ namespace OpenChatbag
 			
 
 			List<string> bagTypes = new List<string>(new string[] {
-				"globalChatbag", "regionChatbag", "parcelChatbag", "primChatbag", "locationChatbag"
+				"globalChatbag", "regionChatbag", "primChatbag"
 			});
 			while (reader.IsStartElement() && bagTypes.Contains( reader.Name ))
 			{
 				// read Chatbag object
 				Chatbag chatbag;
+				string name = reader.GetAttribute("name");
+				if( name == null ) name = "unnamed chatbag";
+				
+				string uuidString = reader.GetAttribute("uuid");
+				UUID uuid;
+				
 				if (reader.Name == "globalChatbag"){
-					chatbag = new GlobalChatbag(reader.GetAttribute("name"));
+					chatbag = new GlobalChatbag(name);
 				}
 				else if (reader.Name == "regionChatbag")
 				{
-					chatbag = new RegionChatbag(reader.GetAttribute("name"), UUID.Parse(reader.GetAttribute("uuid")));
+					if( uuidString == null ){
+						throw new XmlException(String.Format("Region chatbag '{0}' requires a UUID", name));
+					}
+					if( !UUID.TryParse(uuidString, out uuid) ){
+						throw new XmlException(String.Format("'{0}' is not a valid UUID", uuidString));
+					}
+					chatbag = new RegionChatbag(name, uuid);
 				}
 				else if (reader.Name == "primChatbag")
 				{
-					chatbag = new PrimChatbag(reader.GetAttribute("name"), UUID.Parse(reader.GetAttribute("uuid")));
+					if( uuidString == null ){
+						throw new XmlException(String.Format("Prim chatbag '{0}' requires a UUID", name));
+					}
+					if( !UUID.TryParse(uuidString, out uuid) ){
+						throw new XmlException(String.Format("'{0}' is not a valid UUID", uuidString));
+					}
+					
+					chatbag = new PrimChatbag(name, uuid);
 				}
 				else throw new XmlException("Invalid Chatbag type");
 				reader.ReadStartElement();
@@ -54,7 +78,9 @@ namespace OpenChatbag
 				// read list of interactions
 				while (reader.IsStartElement("interaction"))
 				{
-					Interaction i = new Interaction( reader.GetAttribute("name") );
+					name = reader.GetAttribute("name");
+					if( name == null ) name = "unnamed interaction";
+					Interaction i = new Interaction( name );
 					reader.ReadStartElement("interaction");
 
 					reader.ReadStartElement("triggers");
@@ -65,6 +91,8 @@ namespace OpenChatbag
 						{
 							string key = reader.GetAttribute("key");
 							string regex = reader.GetAttribute("regex");
+							if( key == null || regex == null ) 
+								throw new XmlException("Fields must have both a key and an expression");
 							ChatHandler.Instance.RegisterField(key, regex);
 							reader.ReadStartElement(); // read field
 						}
@@ -79,8 +107,16 @@ namespace OpenChatbag
 						ITrigger t = null;
 						if (reader.Name == triggerTypes[0]) // chatTrigger
 						{
-							t = new ChatTrigger(reader.GetAttribute("phrase"), 
-								int.Parse(reader.GetAttribute("channel")));
+							string channelString = reader.GetAttribute("channel");
+							int channel;
+							if( channelString == null || !int.TryParse(channelString, out channel) ){
+								channel = 0;
+								OpenChatbagModule.os_log.WarnFormat("[Chatbag]: '{0}' is not a valid channel number, defaulting to 0.", channelString);
+							}
+							string phrase = reader.GetAttribute("phrase");
+							if( phrase == null )
+								throw new XmlException("Chat triggers require a trigger phrase");
+							t = new ChatTrigger(phrase, channel);
 						}
 						else if (reader.Name == triggerTypes[1]) // proximityTrigger
 						{
@@ -89,7 +125,13 @@ namespace OpenChatbag
 									"[Chatbag]: Proximity triggers on {0} will be ignored, they only work on Prim chatbags!",
 									chatbag.Name);
 							}
-							t = new ProximityTrigger(float.Parse(reader.GetAttribute("range")));
+							string rangeString = reader.GetAttribute("range");
+							float range;
+							if( rangeString == null || !float.TryParse(rangeString, out range) ){
+								range = 10.0f;
+								OpenChatbagModule.os_log.WarnFormat("[Chatbag]: '{0}' is not a valid range (float), defaulting to 10.0", rangeString);
+							}
+							t = new ProximityTrigger(range);
 						}
 						
 						i.triggerList += t;

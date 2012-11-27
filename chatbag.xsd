@@ -67,7 +67,7 @@
 	<xs:complexType name="proximityTriggerType">
 		<xs:complexContent>
 			<xs:extension base="triggerType">
-				<xs:attribute name="range" type="xs:decimal" default="5.0"/>
+				<xs:attribute name="range" type="xs:decimal" default="10.0"/>
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
