@@ -45,7 +45,7 @@ namespace OpenChatbag
 		// runs immediately after the module is loaded, before attachment to anything
 		public void Initialise(IConfigSource source)
 		{
-			os_log.Debug("[OpenChatbag]: Initializing.");
+			os_log.Debug("[Chatbag]: Initializing.");
 			Scenes = new List<Scene>();
 			if (source.Configs["Chat"].Contains("whisper_distance"))
 				WhisperDistance = source.Configs["Chat"].GetInt("whisper_distance");
@@ -60,12 +60,12 @@ namespace OpenChatbag
 		{
 			try
 			{
-				os_log.Debug("[OpenChatbag]: Loading config file");
+				os_log.Debug("[Chatbag]: Loading config file");
 				chatbags = ConfigParser.Parse("chatbag.xml", "chatbag.xsd");
 			}
 			catch (Exception e)
 			{
-				os_log.Error("[OpenChatbag]: Failed to load config file, loading console only! ", e);
+				os_log.Error("[Chatbag]: Failed to load config file, loading console only! ", e);
 				chatbags = new List<Chatbag>();
 				ConsoleChatbag console = new ConsoleChatbag(101010);
 				console.AfterInteractionsSet();
@@ -102,7 +102,7 @@ namespace OpenChatbag
 		// runs post-termination
 		public void Close()
 		{
-			os_log.Debug("[OpenChatbag]: Shutting down.");
+			os_log.Debug("[Chatbag]: Shutting down.");
 		}
 		#endregion
 	}
