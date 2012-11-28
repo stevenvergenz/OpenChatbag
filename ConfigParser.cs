@@ -174,32 +174,50 @@ namespace OpenChatbag
 			return ret;
 		}
 		
-		private static ResponseList ParseResponses(XmlReader reader)
+		private static ResponseList ParseResponses(XmlReader reader, int baseDelay = 100)
 		{
 			if( reader.IsStartElement("response") )
 			{
+				Response.VolumeType volume = Response.ParseVolume(reader.GetAttribute("volume"));
+				
+				string channelString = reader.GetAttribute("channel"); 
 				int channel = 0;
-				Response.VolumeType volume =
-					Response.ParseVolume(reader.GetAttribute("volume"));
-				if( volume != Response.VolumeType.Private )
-					channel = int.Parse(reader.GetAttribute("channel"));
+				if( volume != Response.VolumeType.Private){
+					if( channelString == null || !int.TryParse(channelString, out channel) )
+						channel = 0;
+				}
+				
+				string delayString = reader.GetAttribute("delay");
+				int delay;
+				if( delayString == null || !int.TryParse(delayString, out delay) )
+					delay = baseDelay;
+				else
+					delay += baseDelay;
+					
 				reader.ReadStartElement(); // read response
 				string text = reader.ReadString();
 				reader.ReadEndElement(); // end response
 				
-				return new Response(text, channel, volume);
+				return new Response(text, channel, volume, delay);
 			}
 			else if( reader.IsStartElement("responses") )
 			{
 				ResponseList.ResponseSelectionMode mode = ResponseList.ParseSelectionMode(reader.GetAttribute("selectionMode"));
+				string delayString = reader.GetAttribute("delay");
+				int delay;
+				if( delayString == null || !int.TryParse(delayString, out delay) )
+					delay = baseDelay;
+				else
+					delay += baseDelay;
+				
 				List<ResponseList> list = new List<ResponseList>();
 				reader.ReadStartElement("responses");
 				while( reader.IsStartElement() )
 				{
-					list.Add( ParseResponses(reader) );
+					list.Add( ParseResponses(reader, delay) );
 				}
 				reader.ReadEndElement(); // end responses
-				return new ResponseList(list, mode);
+				return new ResponseList(list, mode, delay);
 			}
 			else
 			{

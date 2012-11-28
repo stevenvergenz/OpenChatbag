@@ -56,13 +56,13 @@ namespace OpenChatbag
 							switch(r.Volume){
 							case Response.VolumeType.Global:
 								ChatHandler.DelayDeliverWorldMessage(Name, r.Channel, 
-									String.Format (r.Text, match.MatchedWording), DEFAULT_CHAT_DELAY);
+									String.Format (r.Text, match.MatchedWording), r.Delay);
 								break;
 								
 							case Response.VolumeType.Region:
 								ChatHandler.DelayDeliverRegionMessage(
 									match.MatchedMessage.Scene.RegionInfo.RegionID, Name, r.Channel, 
-									String.Format (r.Text, match.MatchedWording), DEFAULT_CHAT_DELAY);
+									String.Format (r.Text, match.MatchedWording), r.Delay);
 								break;
 								
 							case Response.VolumeType.Shout:
@@ -70,13 +70,13 @@ namespace OpenChatbag
 							case Response.VolumeType.Whisper:
 								ChatHandler.DelayDeliverPrimMessage(
 									tracker.Target, Name, r.Channel, r.Volume, 
-									String.Format (r.Text, match.MatchedWording), DEFAULT_CHAT_DELAY);
+									String.Format (r.Text, match.MatchedWording), r.Delay);
 								break;
 								
 							case Response.VolumeType.Private:
 								ChatHandler.DelayDeliverPrivateMessage(
 									match.MatchedMessage.SenderUUID, Name, 
-									String.Format (r.Text, match.MatchedWording), DEFAULT_CHAT_DELAY);
+									String.Format (r.Text, match.MatchedWording), r.Delay);
 								break;
 							}
 						}
