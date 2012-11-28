@@ -45,7 +45,8 @@ namespace OpenChatbag
 		// runs immediately after the module is loaded, before attachment to anything
 		public void Initialise(IConfigSource source)
 		{
-			os_log.Debug("[Chatbag]: Initializing.");
+			os_log.Debug("[Chatbag]: Build 72ebc4aabc9f56af");
+			os_log.Debug("[Chatbag]: Initializing...");
 			Scenes = new List<Scene>();
 			if (source.Configs["Chat"].Contains("whisper_distance"))
 				WhisperDistance = source.Configs["Chat"].GetInt("whisper_distance");
