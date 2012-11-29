@@ -55,24 +55,28 @@ namespace OpenChatbag
 						foreach( Response r in message ){
 							switch(r.Volume){
 							case Response.VolumeType.Global:
-								ChatHandler.DelayDeliverWorldMessage(Name, r.Channel, r.Text, DEFAULT_CHAT_DELAY);
+								ChatHandler.DelayDeliverWorldMessage(Name, r.Channel, 
+									String.Format (r.Text, match.MatchedWording), r.Delay);
 								break;
 								
 							case Response.VolumeType.Region:
 								ChatHandler.DelayDeliverRegionMessage(
-									match.MatchedMessage.Scene.RegionInfo.RegionID, Name, r.Channel, r.Text, DEFAULT_CHAT_DELAY);
+									match.MatchedMessage.Scene.RegionInfo.RegionID, Name, r.Channel, 
+									String.Format (r.Text, match.MatchedWording), r.Delay);
 								break;
 								
 							case Response.VolumeType.Shout:
 							case Response.VolumeType.Say:
 							case Response.VolumeType.Whisper:
 								ChatHandler.DelayDeliverPrimMessage(
-									tracker.Target, Name, r.Channel, r.Volume, r.Text, DEFAULT_CHAT_DELAY);
+									tracker.Target, Name, r.Channel, r.Volume, 
+									String.Format (r.Text, match.MatchedWording), r.Delay);
 								break;
 								
 							case Response.VolumeType.Private:
 								ChatHandler.DelayDeliverPrivateMessage(
-									match.MatchedMessage.SenderUUID, Name, r.Text, DEFAULT_CHAT_DELAY);
+									match.MatchedMessage.SenderUUID, Name, 
+									String.Format (r.Text, match.MatchedWording), r.Delay);
 								break;
 							}
 						}

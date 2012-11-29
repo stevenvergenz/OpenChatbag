@@ -138,6 +138,7 @@
 				<xs:element ref="response"/>
 			</xs:choice>
 			<xs:attribute name="selectionMode" type="selectionType" default="random"/>
+			<xs:attribute name="delay" type="xs:unsignedInt" default="0"/>
 		</xs:complexType>
 	</xs:element>
 	
@@ -146,7 +147,8 @@
       <xs:simpleContent>
         <xs:extension base="xs:string">
           <xs:attribute name="channel" type="xs:int" default="0"/>
-          <xs:attribute name="volume" type="volumeType" default="say"/>
+          <xs:attribute name="volume" type="volumeType" default="private"/>
+          <xs:attribute name="delay" type="xs:unsignedInt" default="0"/>
         </xs:extension>
       </xs:simpleContent>
 		</xs:complexType>
