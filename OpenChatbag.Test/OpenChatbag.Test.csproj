@@ -44,18 +44,6 @@
     <Compile Include="TestChatbag.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="log4net">
-      <HintPath>..\lib\log4net.dll</HintPath>
-    </Reference>
-    <Reference Include="Nini">
-      <HintPath>..\lib\Nini.dll</HintPath>
-    </Reference>
-    <Reference Include="OpenMetaverse">
-      <HintPath>..\lib\OpenMetaverse.dll</HintPath>
-    </Reference>
-    <Reference Include="OpenMetaverseTypes">
-      <HintPath>..\lib\OpenMetaverseTypes.dll</HintPath>
-    </Reference>
     <Reference Include="OpenSim.Framework">
       <HintPath>..\lib\OpenSim.Framework.dll</HintPath>
     </Reference>
@@ -64,6 +52,12 @@
     </Reference>
     <Reference Include="OpenSim.Region.Framework">
       <HintPath>..\lib\OpenSim.Region.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenMetaverse">
+      <HintPath>..\lib\OpenMetaverse.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenMetaverseTypes">
+      <HintPath>..\lib\OpenMetaverseTypes.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>
