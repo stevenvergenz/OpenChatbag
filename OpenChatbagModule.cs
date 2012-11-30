@@ -38,7 +38,7 @@ namespace OpenChatbag
 		public static int WhisperDistance = 10;
 		public static int SayDistance = 20;
 		public static int ShoutDistance = 100;
-
+		public static string ConfigFile = "chatbag.xml";
 		#endregion
 
 		#region Module Handles
@@ -53,6 +53,10 @@ namespace OpenChatbag
 				SayDistance = source.Configs["Chat"].GetInt("say_distance");
 			if (source.Configs["Chat"].Contains("shout_distance"))
 				ShoutDistance = source.Configs["Chat"].GetInt("shout_distance");
+				
+			if( source.Configs.Contains("Chatbag") && source.Configs["Chatbag"].Contains("definition_file") ){
+				ConfigFile = source.Configs["Chatbag"].GetString("definition_file");
+			}
 		}
 
 		// runs after Initialize, but before modules are added
@@ -60,8 +64,8 @@ namespace OpenChatbag
 		{
 			try
 			{
-				os_log.Debug("[Chatbag]: Loading config file");
-				chatbags = ConfigParser.Parse("chatbag.xml", "chatbag.xsd");
+				os_log.Debug("[Chatbag]: Loading config file: "+ConfigFile);
+				chatbags = ConfigParser.Parse(ConfigFile, "chatbag.xsd");
 			}
 			catch (Exception e)
 			{
