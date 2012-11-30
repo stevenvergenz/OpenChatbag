@@ -54,8 +54,9 @@ namespace OpenChatbag
 				SayDistance = source.Configs["Chat"].GetInt("say_distance");
 			if (source.Configs["Chat"].Contains("shout_distance"))
 				ShoutDistance = source.Configs["Chat"].GetInt("shout_distance");
-				
-			if( source.Configs.Contains("Chatbag") && source.Configs["Chatbag"].Contains("definition_file") ){
+			
+			IConfig cbconfig = source.Configs["Chatbag"];
+			if( cbconfig != null && cbconfig.Contains("definition_file") ){
 				ConfigFile = source.Configs["Chatbag"].GetString("definition_file");
 			}
 		}
