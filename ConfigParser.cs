@@ -217,7 +217,7 @@ namespace OpenChatbag
 					list.Add( ParseResponses(reader, delay) );
 				}
 				reader.ReadEndElement(); // end responses
-				return new ResponseList(list, mode, delay);
+				return new ResponseList(list, mode);
 			}
 			else
 			{

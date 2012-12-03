@@ -33,14 +33,31 @@ namespace OpenChatbag
 		public bool IsSharedModule { get { return true; } }
 		public Type ReplaceableInterface { get { return null; } }
 
-		public List<Chatbag> chatbags;
+		public static List<Chatbag> chatbags;
 
 		public static int WhisperDistance = 10;
 		public static int SayDistance = 20;
 		public static int ShoutDistance = 100;
 		public static string ConfigFile = "chatbag.xml";
+		
 		#endregion
-
+		
+		public static void LoadChatbagConfig()
+		{
+			try
+			{
+				os_log.Debug("[Chatbag]: Loading config file: "+ConfigFile);
+				chatbags = ConfigParser.Parse(ConfigFile, "chatbag.xsd");
+			}
+			catch( Exception e ){
+				chatbags = new List<Chatbag>();
+				ConsoleChatbag console = new ConsoleChatbag(101010);
+				console.AfterInteractionsSet();
+				chatbags.Add(console);
+				throw e;
+			}
+		}
+		
 		#region Module Handles
 		// runs immediately after the module is loaded, before attachment to anything
 		public void Initialise(IConfigSource source)
@@ -64,18 +81,11 @@ namespace OpenChatbag
 		// runs after Initialize, but before modules are added
 		public void PostInitialise()
 		{
-			try
-			{
-				os_log.Debug("[Chatbag]: Loading config file: "+ConfigFile);
-				chatbags = ConfigParser.Parse(ConfigFile, "chatbag.xsd");
+			try {
+				LoadChatbagConfig();
 			}
-			catch (Exception e)
-			{
+			catch (Exception e) {
 				os_log.Error("[Chatbag]: Failed to load config file, loading console only! ", e);
-				chatbags = new List<Chatbag>();
-				ConsoleChatbag console = new ConsoleChatbag(101010);
-				console.AfterInteractionsSet();
-				chatbags.Add(console);
 			}
 		}
 

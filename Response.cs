@@ -11,16 +11,14 @@ namespace OpenChatbag
 		private List<ResponseList> _list;
 		private int _responseCounter;
 		private ResponseSelectionMode _mode;
-		public int Delay;
 		
 		protected ResponseList() { }
 		
-		public ResponseList(List<ResponseList> list, ResponseSelectionMode mode, int delay)
+		public ResponseList(List<ResponseList> list, ResponseSelectionMode mode)
 		{
 			_list = list;
 			_responseCounter = 0;
 			_mode = mode;
-			Delay = delay;
 		}
 		
 		public virtual List<Response> GetResponse()
@@ -74,6 +72,8 @@ namespace OpenChatbag
 		public int Channel;
 		public VolumeType Volume;
 		public string Text;
+		
+		public int Delay;
 		
 		public Response(string text, int channel = 0, VolumeType volume = VolumeType.Say, int delay = 500)
 		{
