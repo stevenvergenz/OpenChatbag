@@ -54,7 +54,7 @@ namespace OpenChatbag
 					0, Response.VolumeType.Private);
 			}
 			catch( Exception e ){
-				List<Response> responses = new List<Response>();
+				List<ResponseList> responses = new List<ResponseList>();
 				responses.Add( new Response("There was a problem loading the config file", 0, Response.VolumeType.Private, 100) );
 				responses.Add( new Response(e.Message, 0, Response.VolumeType.Private, 150) );
 				InteractionList[0].responses = new ResponseList(responses, ResponseList.ResponseSelectionMode.All);
