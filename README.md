@@ -178,7 +178,7 @@ limited subset. To this end, you can use fields. They are defined in a sub-block
 They can then be embedded into trigger phrases by surrounding the designated keyword with {braces}.
 
 Prim chatbags support special functionality: they can be triggered whenever an avatar gets nearby. This is done
-through the use of the <proximityTrigger> type. See below for usage information.
+through the use of the ```<proximityTrigger>``` type. See below for usage information.
 
 --------------------------------------------
 
