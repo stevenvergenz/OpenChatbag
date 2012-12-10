@@ -42,25 +42,169 @@ installation.
 
 The configuration file for OpenChatbag is an XML document, so you should be familiar with this format
 before attempting to configure OpenChatbag. You will save yourself a lot of headaches by doing this.
+I highly recommend starting from the sample config file included with this repo as a base to ensure that
+the namespaces are correct.
 
 
-### The root element - <config> ###
+### Simple config file ###
 
-By and large, you should leave this tag alone.
+The below XML snippet is a valid OpenChatbag config block. Use it for reference as you read this document.
+
+	<config consoleChannel="101010"
+		xmlns="https://github.com/stevenvergenz/OpenChatbag" 
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+		xsi:schemaLocation="https://github.com/stevenvergenz/OpenChatbag chatbag.xsd">
+
+		<globalChatbag name="Cheerful Bot">
+			<interaction name="greetings">
+				<triggers>
+					<chatTrigger phrase="hello|hi|hey|what's up_world"/>
+				</triggers>
+				<responses selectionMode="all">
+					<response volume="private">Hello yourself! Beautiful day, isn't it?</response>
+					<response volume="global" channel="0" delay="100">Someone said hello to me! I'm so happy to be noticed!</response>
+				</responses>
+			</interaction>
+		</globalChatbag>
+
+	</config>
+
+
+### The root element ###
+
+By and large, you should be able to leave this tag default.
+
+--------------------------------------------
+
+Tag name: <config>
 
 Attributes:
 
-- *0 or 1* - consoleChannel [integer]: The channel used to control OpenChatbag from in-world
+- *0 or 1* - consoleChannel [integer]: The channel used to control OpenChatbag from in-world. Defaults
+to 101010 if not specified.
 
 Children: 
 
-- *1+* - <globalChatbag>, <regionChatbag> or <primChatbag>
+- *1 or more* - <globalChatbag>, <regionChatbag> or <primChatbag>
 
 
-### The Chatbag elements - <globalChatbag>, <regionChatbag>, and <primChatbag> ###
+### The Chatbag elements ###
 
-These elements are the core of the OpenChatbag experience. They correspond to different scopes or
-zones of influence. A global chatbag will respond if its triggers occur anywhere in the simulation.
-A region chatbag to triggers within the specified region. Prim chatbags are a little different though.
-They will respond to chat triggers within earshot, so their effective range changes based on whether
-you're shouting or whispering. 
+The chatbag elements are the core of the OpenChatbag experience. There are three types: global, region,
+and prim. They correspond to different scopes or zones of influence. A global chatbag will respond if its
+triggers occur anywhere in the simulation. A region chatbag to triggers within the specified region. Prim
+chatbags are a little different though. They will respond to chat triggers within earshot, so their
+effective range changes based on whether you're shouting or whispering. 
+
+You can think of chatbags as particular entities you're interacting with.
+
+--------------------------------------------
+
+Tag names: <globalChatbag>, <regionChatbag>, <primChatbag>
+
+Attributes:
+
+- *0 or 1* - name [string]: The name of the chatbag. Identifies any chats in-world. Defaults to
+"unnamed chatbag" if not specified
+- *Exactly 1, prim and region types only* - uuid [uuid]: The identifier of the target region or prim.
+
+Children:
+
+- *1 or more* - <interaction>
+
+
+### Interactions ###
+
+Interactions are built around a particular concept that the chatbag wants to express. It is composed
+of the set of stimuli that evoke a response, and the response tree. More on these later.
+
+--------------------------------------------
+
+Tag name: <interaction>
+
+Attributes:
+
+- *0 or 1* - name [string]: The name of the interaction. Used solely for logging purposes.
+
+Children:
+
+- *Exactly 1* - <triggers>
+- *Exactly 1* - <responses>
+
+
+### Triggers ###
+
+Triggers are particular pre-programmed phrases that OpenChatbag monitors in-world chat for. The definitions
+are simplified case-insensitive regular expressions, but support embedded full regular expressions if you
+desire the functionality.
+
+In the trigger phrase syntax, desired words/phrases are separated by underscores. In English, this might be
+the equivalent of elipsis dots (...). It tells the OpenChatbag parser to skip ahead to the next keyword/phrase.
+Synonyms can also be specified by the use of a pipe symbol '|'. You can use this to account for misspellings
+or variations in tense, person, or plurality in addition to normal word options.
+
+If you are already familiar with regular expressions, you may wish to use the full syntax rather than this
+limited subset. To this end, you can use fields. They are defined in a sub-block of triggers using full regex.
+They can then be embedded into trigger phrases by surrounding the designated keyword with {braces}.
+
+Prim chatbags support special functionality: they can be triggered whenever an avatar gets nearby. This is done
+through the use of the <proximityTrigger> type. See below for usage information.
+
+--------------------------------------------
+
+Tag name: <triggers>
+
+Attributes: (none)
+
+Children:
+
+- *0 or 1* - <fields>
+- *1 or more* - <chatTrigger>, <proximityTrigger>
+
+--------------------------------------------
+
+Tag name: <fields>
+
+Attributes: (none)
+
+Children:
+
+- *1 or more* - <field>
+
+-------------------------------------------
+
+Tag name: <field>
+
+Attributes:
+
+- *Exactly 1* - key [string]: The substitution identifier for the field.
+- *Exactly 1* - regex [string]: The regular expression used to match the field.
+
+Children: (none)
+
+-------------------------------------------
+
+Tag name: <chatTrigger>
+
+Attributes:
+
+- *0 or 1* - channel [integer]: Only triggering phrases on this channel will evoke a response.
+- *Exactly 1* - phrase [string]: The phrase to listen for. Uses the previously described syntax.
+
+Children: (none)
+
+-------------------------------------------
+
+Tag name: <proximityTrigger>
+
+Attributes:
+
+- *0 or 1* - range [integer]: The trigger is activated when an avatar gets within *range* meters of the prim.
+Defaults to 10 meters when not specified.
+
+Children: (none)
+
+
+### Responses ###
+
+
