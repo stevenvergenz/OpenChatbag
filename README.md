@@ -51,9 +51,12 @@ installation.
 2. Copy chatbag.xml (the definition file) to somewhere on your server's filesystem. Anywhere is fine,
    this is configurable.
 3. Add a configuration block to the end of your opensim/bin/OpenSim.ini file, pointing to wherever
-   you put chatbag.xml in the previous step.
-		[Chatbag]
-			definition_file = "/your/path/chatbag.xml"
+you put chatbag.xml in the previous step.
+
+	```
+	[Chatbag]
+		definition_file = "/your/path/chatbag.xml"
+	```
 4. Restart OpenSim, and watch the logs to make sure it loads the config file correctly.
 
 
@@ -71,25 +74,26 @@ the namespaces are correct.
 
 The below XML snippet is a valid OpenChatbag config block. Use it for reference as you read this document.
 
-	<config consoleChannel="101010"
-		xmlns="https://github.com/stevenvergenz/OpenChatbag" 
-		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-		xsi:schemaLocation="https://github.com/stevenvergenz/OpenChatbag chatbag.xsd">
+```xml
+<config consoleChannel="101010"
+	xmlns="https://github.com/stevenvergenz/OpenChatbag" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="https://github.com/stevenvergenz/OpenChatbag chatbag.xsd">
 
-		<globalChatbag name="Cheerful Bot">
-			<interaction name="greetings">
-				<triggers>
-					<chatTrigger phrase="hello|hi|hey|what's up_world"/>
-				</triggers>
-				<responses selectionMode="all">
-					<response volume="private">Hello yourself! Beautiful day, isn't it?</response>
-					<response volume="global" channel="0" delay="100">Someone said hello to me! I'm so happy to be noticed!</response>
-				</responses>
-			</interaction>
-		</globalChatbag>
+	<globalChatbag name="Cheerful Bot">
+		<interaction name="greetings">
+			<triggers>
+				<chatTrigger phrase="hello|hi|hey|what's up_world"/>
+			</triggers>
+			<responses selectionMode="all">
+				<response volume="private">Hello yourself! Beautiful day, isn't it?</response>
+				<response volume="global" channel="0" delay="100">Someone said hello to me! I'm so happy to be noticed!</response>
+			</responses>
+		</interaction>
+	</globalChatbag>
 
-	</config>
-
+</config>
+```
 
 
 ### <a id="the-root-element"></a>The root element ###
@@ -98,7 +102,7 @@ By and large, you should be able to leave this tag default.
 
 --------------------------------------------
 
-Tag name: <config>
+Tag name: ```<config>```
 
 Attributes:
 
@@ -107,7 +111,7 @@ to 101010 if not specified.
 
 Children: 
 
-- *1 or more* - <globalChatbag>, <regionChatbag> or <primChatbag>
+- *1 or more* - ```<globalChatbag>, <regionChatbag>, <primChatbag>```
 
 
 
@@ -123,7 +127,7 @@ You can think of chatbags as particular entities you're interacting with.
 
 --------------------------------------------
 
-Tag names: <globalChatbag>, <regionChatbag>, <primChatbag>
+Tag names: ```<globalChatbag>, <regionChatbag>, <primChatbag>```
 
 Attributes:
 
@@ -133,7 +137,7 @@ Attributes:
 
 Children:
 
-- *1 or more* - <interaction>
+- *1 or more* - ```<interaction>```
 
 
 
@@ -144,7 +148,7 @@ of the set of stimuli that evoke a response, and the response tree. More on thes
 
 --------------------------------------------
 
-Tag name: <interaction>
+Tag name: ```<interaction>```
 
 Attributes:
 
@@ -152,8 +156,8 @@ Attributes:
 
 Children:
 
-- *Exactly 1* - <triggers>
-- *Exactly 1* - <responses>
+- *Exactly 1* - ```<triggers>```
+- *Exactly 1* - ```<responses>```
 
 
 
@@ -178,28 +182,28 @@ through the use of the <proximityTrigger> type. See below for usage information.
 
 --------------------------------------------
 
-Tag name: <triggers>
+Tag name: ```<triggers>```
 
 Attributes: (none)
 
 Children:
 
-- *0 or 1* - <fields>
-- *1 or more* - <chatTrigger>, <proximityTrigger>
+- *0 or 1* - ```<fields>```
+- *1 or more* - ```<chatTrigger>, <proximityTrigger>```
 
 --------------------------------------------
 
-Tag name: <fields>
+Tag name: ```<fields>```
 
 Attributes: (none)
 
 Children:
 
-- *1 or more* - <field>
+- *1 or more* - ```<field>```
 
 -------------------------------------------
 
-Tag name: <field>
+Tag name: ```<field>```
 
 Attributes:
 
@@ -210,7 +214,7 @@ Children: (none)
 
 -------------------------------------------
 
-Tag name: <chatTrigger>
+Tag name: ```<chatTrigger>```
 
 Attributes:
 
@@ -221,7 +225,7 @@ Children: (none)
 
 -------------------------------------------
 
-Tag name: <proximityTrigger>
+Tag name: ```<proximityTrigger>```
 
 Attributes:
 
@@ -244,7 +248,7 @@ with "hello" and "{1}" would be "world".
 
 --------------------------------------------
 
-Tag name: <responses>
+Tag name: ```<responses>```
 
 Attributes:
 
@@ -256,11 +260,11 @@ is applied on top of its parent's delay value.
 
 Children:
 
-- *1 or more* - <responses>, <response>
+- *1 or more* - ```<responses>, <response>```
 
 --------------------------------------------
 
-Tag name: <response>
+Tag name: ```<response>```
 
 Attributes:
 
@@ -274,7 +278,7 @@ is applied on top of its parent's delay value.
 
 Children: 
 
-- The response text should be the only contents of the <response> tag.
+- The response text should be the only contents of the ```<response>``` tag.
 
 
 
