@@ -1,6 +1,19 @@
 # OpenChatbag - Call/Response Module For OpenSim #
 
-## Overview ##
+## Table of Contents ##
+
+1. [Overview](#overview)
+2. [Compiling](#compiling)
+3. [Installation](#installation)
+4. [Configuration](#configuration)
+	1. [Simple config file](#sample_config)
+	2. [The root element](#config)
+	3. [The Chatbag elements](#chatbag)
+	4. [Interactions](#interactions)
+	5. [Responses](#responses)
+
+
+## <a id="overview"></a>Overview ##
 
 OpenChatbag is an OpenSim region module that will provide canned responses to appropriate prompts.
 You could have a simple greeter that says "Welcome!" whenever someone enters the room, or a duet bot
@@ -12,8 +25,13 @@ OpenChatbag takes a bag-of-words approach to syntax. It is unaware of punctuatio
 but will instead just check that each word in the designated pattern appears in the proper order.
 Hence the name Chatbag.
 
+OpenChatbag was written by Steven Vergenz, and licensed under the General Public License version 3.
+Any other use of this software is forbidden, except with explicit written permission from its author.
+This software comes as-is with no guarantee whatsoever of stability or safety.
 
-## Compiling ##
+
+
+## <a id="compiling"></a>Compiling ##
 
 OpenChatbag must be compiled against the version of OpenSim you are running on your server. Note
 that the master branch of OpenChatbag uses features only available from OpenSim 0.7.4 onward. If
@@ -23,10 +41,11 @@ Appropriate assemblies are included in the repository, but they may not match yo
 1. Replace the DLLs in the lib/ directory with the appropriate assemblies from your OpenSim
 installation.
 2. Open OpenChatbag.sln with your IDE of choice (Visual Studio or MonoDevelop).
-3. Compile the project.
+3. Compile the project. If there are errors, try using the 0.7.3.1-support branch.
 
 
-## Installation ##
+
+## <a id="installation"></a>Installation ##
 
 1. Copy bin/OpenChatbag.dll (just compiled) and chatbag.xsd to your opensim/bin directory.
 2. Copy chatbag.xml (the definition file) to somewhere on your server's filesystem. Anywhere is fine,
@@ -38,7 +57,8 @@ installation.
 4. Restart OpenSim, and watch the logs to make sure it loads the config file correctly.
 
 
-## Configuration ##
+
+## <a id="configuration"></a>Configuration ##
 
 The configuration file for OpenChatbag is an XML document, so you should be familiar with this format
 before attempting to configure OpenChatbag. You will save yourself a lot of headaches by doing this.
@@ -46,7 +66,8 @@ I highly recommend starting from the sample config file included with this repo 
 the namespaces are correct.
 
 
-### Simple config file ###
+
+### <a id="sample_config"></a>Simple config file ###
 
 The below XML snippet is a valid OpenChatbag config block. Use it for reference as you read this document.
 
@@ -70,7 +91,8 @@ The below XML snippet is a valid OpenChatbag config block. Use it for reference 
 	</config>
 
 
-### The root element ###
+
+### <a id="config"></a>The root element ###
 
 By and large, you should be able to leave this tag default.
 
@@ -88,7 +110,8 @@ Children:
 - *1 or more* - <globalChatbag>, <regionChatbag> or <primChatbag>
 
 
-### The Chatbag elements ###
+
+### <a id="chatbag"></a>The Chatbag elements ###
 
 The chatbag elements are the core of the OpenChatbag experience. There are three types: global, region,
 and prim. They correspond to different scopes or zones of influence. A global chatbag will respond if its
@@ -113,7 +136,8 @@ Children:
 - *1 or more* - <interaction>
 
 
-### Interactions ###
+
+### <a id="interactions"></a>Interactions ###
 
 Interactions are built around a particular concept that the chatbag wants to express. It is composed
 of the set of stimuli that evoke a response, and the response tree. More on these later.
@@ -132,7 +156,8 @@ Children:
 - *Exactly 1* - <responses>
 
 
-### Triggers ###
+
+### <a id="triggers"></a>Triggers ###
 
 Triggers are particular pre-programmed phrases that OpenChatbag monitors in-world chat for. The definitions
 are simplified case-insensitive regular expressions, but support embedded full regular expressions if you
@@ -141,7 +166,8 @@ desire the functionality.
 In the trigger phrase syntax, desired words/phrases are separated by underscores. In English, this might be
 the equivalent of elipsis dots (...). It tells the OpenChatbag parser to skip ahead to the next keyword/phrase.
 Synonyms can also be specified by the use of a pipe symbol '|'. You can use this to account for misspellings
-or variations in tense, person, or plurality in addition to normal word options.
+or variations in tense, person, or plurality in addition to normal word options. See the sample config section
+for an example of this syntax.
 
 If you are already familiar with regular expressions, you may wish to use the full syntax rather than this
 limited subset. To this end, you can use fields. They are defined in a sub-block of triggers using full regex.
@@ -205,6 +231,50 @@ Defaults to 10 meters when not specified.
 Children: (none)
 
 
-### Responses ###
+
+### <a id="responses"></a>Responses ###
+
+OpenChatbag does not use just a single response to a given stimuli. Instead, you provide a decision tree, and
+responses are chosen based on that tree. This grants the flexibility to have as simple or as complicated a
+script as you desire.
+
+Backreferences are supported. By embedding a numeric field (e.g. {1}), you can insert a word from the trigger
+phrase. So if "hello|hi\_world" is triggered with someone saying "Hello world!", then "{0}" would be replaced
+with "hello" and "{1}" would be "world".
+
+--------------------------------------------
+
+Tag name: <responses>
+
+Attributes:
+
+- *0 or 1* - selectionMode [enum: random, next, all]: Determines which of its child elements are chosen when
+a response is needed. They can be chosen randomly (random), sequentially (next), or they can all be chosen
+(all). Defaults to *random* when not specified.
+- *0 or 1* - delay [integer]: How long in milliseconds the chatbag should wait for response delivery. Value
+is applied on top of its parent's delay value.
+
+Children:
+
+- *1 or more* - <responses>, <response>
+
+--------------------------------------------
+
+Tag name: <response>
+
+Attributes:
+
+- *0 or 1* - volume [enum: global, region, shout, say, whisper, private]: How loudly the reply should be
+broadcast. *global* responds to the whole server. *region* will reply to the region that the trigger came
+from. *shout*, *say*, and *whisper* are only valid for prim chatbags, and correspond to the different chat
+volumes. *private* will instant message the user that triggered the response.
+- *0 or 1* - channel [integer]: The channel to respond on. Defaults to 0 when not specified.
+- *0 or 1* - delay [integer]: How long in milliseconds the chatbag should wait for response delivery. Value
+is applied on top of its parent's delay value.
+
+Children: 
+
+- The response text should be the only contents of the <response> tag.
+
 
 
