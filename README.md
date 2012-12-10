@@ -6,9 +6,9 @@
 2. [Compiling](#compiling)
 3. [Installation](#installation)
 4. [Configuration](#configuration)
-	1. [Simple config file](#sample_config)
-	2. [The root element](#config)
-	3. [The Chatbag elements](#chatbag)
+	1. [Simple config file](#simple-config-file)
+	2. [The root element](#the-root-element)
+	3. [The Chatbag elements](#the-chatbag-elements)
 	4. [Interactions](#interactions)
 	5. [Responses](#responses)
 
@@ -67,7 +67,7 @@ the namespaces are correct.
 
 
 
-### <a id="sample_config"></a>Simple config file ###
+### <a id="simple-config-file"></a>Simple config file ###
 
 The below XML snippet is a valid OpenChatbag config block. Use it for reference as you read this document.
 
@@ -92,7 +92,7 @@ The below XML snippet is a valid OpenChatbag config block. Use it for reference 
 
 
 
-### <a id="config"></a>The root element ###
+### <a id="the-root-element"></a>The root element ###
 
 By and large, you should be able to leave this tag default.
 
@@ -111,7 +111,7 @@ Children:
 
 
 
-### <a id="chatbag"></a>The Chatbag elements ###
+### <a id="the-chatbag-elements"></a>The Chatbag elements ###
 
 The chatbag elements are the core of the OpenChatbag experience. There are three types: global, region,
 and prim. They correspond to different scopes or zones of influence. A global chatbag will respond if its
