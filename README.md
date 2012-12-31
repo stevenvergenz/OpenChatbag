@@ -243,8 +243,9 @@ responses are chosen based on that tree. This grants the flexibility to have as 
 script as you desire.
 
 Backreferences are supported. By embedding a numeric field (e.g. {1}), you can insert a word from the trigger
-phrase. So if "hello|hi\_world" is triggered with someone saying "Hello world!", then "{0}" would be replaced
-with "hello" and "{1}" would be "world".
+phrase. The first backreference ({0}) is always the entire triggering phrase. So if "hello|hi\_world" is
+triggered with someone saying "Hello world!", then "{0}" would be replaced with "Hello world!" and "{1}" would
+be "hello".
 
 --------------------------------------------
 
