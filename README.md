@@ -10,7 +10,8 @@
 	2. [The root element](#the-root-element)
 	3. [The Chatbag elements](#the-chatbag-elements)
 	4. [Interactions](#interactions)
-	5. [Responses](#responses)
+	5. [Triggers](#triggers)
+	6. [Responses](#responses)
 
 
 ## <a id="overview"></a>Overview ##
