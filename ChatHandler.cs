@@ -219,10 +219,9 @@ namespace OpenChatbag
 				m = commandMatcher.Match(msg);
 				if( m.Success ){
 					// build new string out of matching words
-					string[] captures = new string[m.Groups.Count-1];
+					string[] captures = new string[m.Groups.Count];
 					for(int i=0; i<m.Groups.Count; i++){
-						if( i==0 ) continue;
-						captures[i-1] = m.Groups[i].Value;
+						captures[i] = m.Groups[i].Value;
 					}
 					
 					// add to return list
