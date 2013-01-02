@@ -53,30 +53,42 @@ namespace OpenChatbag
 						OpenChatbagModule.os_log.DebugFormat("[Chatbag]: Interaction {0}.{1} triggered", Name, i.Name);
 						List<Response> message = i.responses.GetResponse();
 						foreach( Response r in message ){
+							string prepString = "";
 							switch(r.Volume){
 							case Response.VolumeType.Global:
+								prepString = r.Text.Replace("{name}", match.MatchedMessage.From);
+								prepString = String.Format(prepString, match.MatchedWording);
 								ChatHandler.DelayDeliverWorldMessage(Name, r.Channel, 
-									String.Format (r.Text, match.MatchedWording), r.Delay);
+									prepString, r.Delay);
 								break;
 								
 							case Response.VolumeType.Region:
+								prepString = r.Text.Replace("{name}", match.MatchedMessage.From);
+								prepString = String.Format(prepString, match.MatchedWording);
+								
 								ChatHandler.DelayDeliverRegionMessage(
 									match.MatchedMessage.Scene.RegionInfo.RegionID, Name, r.Channel, 
-									String.Format (r.Text, match.MatchedWording), r.Delay);
+									prepString, r.Delay);
 								break;
 								
 							case Response.VolumeType.Shout:
 							case Response.VolumeType.Say:
 							case Response.VolumeType.Whisper:
+								prepString = r.Text.Replace("{name}", match.MatchedMessage.From);
+								prepString = String.Format(prepString, match.MatchedWording);
+								
 								ChatHandler.DelayDeliverPrimMessage(
 									tracker.Target, Name, r.Channel, r.Volume, 
-									String.Format (r.Text, match.MatchedWording), r.Delay);
+									prepString, r.Delay);
 								break;
 								
 							case Response.VolumeType.Private:
+								prepString = r.Text.Replace("{name}", match.MatchedMessage.From);
+								prepString = String.Format(prepString, match.MatchedWording);
+								
 								ChatHandler.DelayDeliverPrivateMessage(
 									match.MatchedMessage.SenderUUID, Name, 
-									String.Format (r.Text, match.MatchedWording), r.Delay);
+									prepString, r.Delay);
 								break;
 							}
 						}
