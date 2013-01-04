@@ -220,7 +220,8 @@ namespace OpenChatbag
 				if( m.Success ){
 					// build new string out of matching words
 					string[] captures = new string[m.Groups.Count];
-					for(int i=0; i<m.Groups.Count; i++){
+					captures[0] = msg;
+					for(int i=1; i<m.Groups.Count; i++){
 						captures[i] = m.Groups[i].Value;
 					}
 					
