@@ -56,14 +56,14 @@ namespace OpenChatbag
 							string prepString = "";
 							switch(r.Volume){
 							case Response.VolumeType.Global:
-								prepString = r.Text.Replace("{name}", match.MatchedMessage.From);
+								prepString = r.Text.Replace("{name}", match.MatchedMessage.Sender.Name);
 								prepString = String.Format(prepString, match.MatchedWording);
 								ChatHandler.DelayDeliverWorldMessage(Name, r.Channel, 
 									prepString, r.Delay);
 								break;
 								
 							case Response.VolumeType.Region:
-								prepString = r.Text.Replace("{name}", match.MatchedMessage.From);
+								prepString = r.Text.Replace("{name}", match.MatchedMessage.Sender.Name);
 								prepString = String.Format(prepString, match.MatchedWording);
 								
 								ChatHandler.DelayDeliverRegionMessage(
@@ -74,7 +74,7 @@ namespace OpenChatbag
 							case Response.VolumeType.Shout:
 							case Response.VolumeType.Say:
 							case Response.VolumeType.Whisper:
-								prepString = r.Text.Replace("{name}", match.MatchedMessage.From);
+								prepString = r.Text.Replace("{name}", match.MatchedMessage.Sender.Name);
 								prepString = String.Format(prepString, match.MatchedWording);
 								
 								ChatHandler.DelayDeliverPrimMessage(
@@ -83,7 +83,7 @@ namespace OpenChatbag
 								break;
 								
 							case Response.VolumeType.Private:
-								prepString = r.Text.Replace("{name}", match.MatchedMessage.From);
+								prepString = r.Text.Replace("{name}", match.MatchedMessage.Sender.Name);
 								prepString = String.Format(prepString, match.MatchedWording);
 								
 								ChatHandler.DelayDeliverPrivateMessage(
