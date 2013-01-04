@@ -185,23 +185,23 @@ namespace OpenChatbag
 						foreach( Response r in message ){
 							switch(r.Volume){
 							case Response.VolumeType.Global:
-								ChatHandler.DeliverWorldMessage(Name, r.Channel, r.Text);
+								ChatHandler.DelayDeliverWorldMessage(Name, r.Channel, r.Text, r.Delay);
 								break;
 								
 							case Response.VolumeType.Region:
-								ChatHandler.DeliverRegionMessage(client.Scene.RegionInfo.RegionID, 
-								                                 Name, r.Channel, r.Text);
+								ChatHandler.DelayDeliverRegionMessage(client.Scene.RegionInfo.RegionID, 
+								                                 Name, r.Channel, r.Text, r.Delay);
 								break;
 								
 							case Response.VolumeType.Shout:
 							case Response.VolumeType.Say:
 							case Response.VolumeType.Whisper:
-								ChatHandler.DeliverPrimMessage(tracker.Target, Name, 
-								                               r.Channel, r.Volume, r.Text);
+								ChatHandler.DelayDeliverPrimMessage(tracker.Target, Name, 
+								                               r.Channel, r.Volume, r.Text, r.Delay);
 								break;
 								
 							case Response.VolumeType.Private:
-								ChatHandler.DeliverPrivateMessage(client.UUID, Name, r.Text);
+								ChatHandler.DelayDeliverPrivateMessage(client.UUID, Name, r.Text, r.Delay);
 								break;
 							}
 						}
