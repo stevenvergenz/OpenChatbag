@@ -194,12 +194,17 @@ namespace OpenChatbag
 		{
 			if (TrackerMap.ContainsKey(sop.UUID))
 			{
+				PositionState tracker = TrackerMap[sop.UUID];
+				Vector3 newPos = ToGlobalCoordinates(sop.ParentGroup.Scene.RegionInfo, sop.AbsolutePosition);
+				// ignore update if the prim has not moved
+				if( tracker.Position == newPos ) return;
+			
 				OpenChatbagModule.os_log.DebugFormat("[Chatbag]: Updating location of {0}", sop.UUID.ToString());
 				// transform region coordinates to globals
-				PositionState tracker = TrackerMap[sop.UUID];
+				
 				lock (tracker)
 				{
-					tracker.Position = ToGlobalCoordinates(sop.ParentGroup.Scene.RegionInfo, sop.AbsolutePosition);
+					tracker.Position = newPos;
 					//Dictionary<float, bool> sendUpdate = new Dictionary<float, bool>();
 					List<float> sendUpdate = new List<float>();
 					
