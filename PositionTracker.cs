@@ -24,14 +24,16 @@ namespace OpenChatbag
 		public Vector3 Position { get; set; }
 		public List<float> NearbyRadii { get; protected set; }
 		public Dictionary<float,List<UUID>> NearbyAvatars { get; protected set; }
-
+		public Dictionary<UUID, long> TimeoutBlacklist { get; protected set; }
+		
+		
 		public PositionState(UUID target)
 		{
 			Target = target;
 			Position = new Vector3();
 			NearbyRadii = new List<float>();
 			NearbyAvatars = new Dictionary<float, List<UUID>>();
-			
+			TimeoutBlacklist = new Dictionary<UUID, long>();
 
 			// detect target type
 			foreach (Scene s in OpenChatbagModule.Scenes)
@@ -145,12 +147,23 @@ namespace OpenChatbag
 						{
 							if (!poi.NearbyAvatars.ContainsKey(range))
 								poi.NearbyAvatars.Add(range, new List<UUID>());
-
+							
+							TimeSpan t = (DateTime.UtcNow - new DateTime(1970, 1, 1));
+							long timestamp = (long)t.TotalSeconds;
+							
 							bool inZone = Vector3.Distance(avatarPosition, poi.Position) < range;
 							if (inZone && !poi.NearbyAvatars[range].Contains(client.UUID))
 							{
 								poi.NearbyAvatars[range].Add(client.UUID);
-								poi.TriggerOnRangeChange(client, range);
+								
+								long temp = 0;
+								bool timeout = !poi.TimeoutBlacklist.TryGetValue(client.UUID, out temp) 
+									|| timestamp - temp > OpenChatbagModule.ProximityTimeout;
+								if( timeout )
+								{
+									poi.TriggerOnRangeChange(client, range);
+									poi.TimeoutBlacklist[client.UUID] = timestamp;
+								}
 							}
 							else if (!inZone && poi.NearbyAvatars[range].Contains(client.UUID))
 							{

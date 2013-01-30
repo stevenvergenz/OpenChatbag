@@ -39,6 +39,7 @@ namespace OpenChatbag
 		public static int SayDistance = 20;
 		public static int ShoutDistance = 100;
 		public static string ConfigFile = "chatbag.xml";
+		public static int ProximityTimeout = 30;
 		
 		#endregion
 		
@@ -73,8 +74,12 @@ namespace OpenChatbag
 				ShoutDistance = source.Configs["Chat"].GetInt("shout_distance");
 			
 			IConfig cbconfig = source.Configs["Chatbag"];
-			if( cbconfig != null && cbconfig.Contains("definition_file") ){
-				ConfigFile = source.Configs["Chatbag"].GetString("definition_file");
+			if( cbconfig != null )
+			{
+				if( cbconfig.Contains("definition_file") )
+					ConfigFile = source.Configs["Chatbag"].GetString("definition_file");
+				if( cbconfig.Contains("proximity_timeout") )
+					ProximityTimeout = source.Configs["Chatbag"].GetInt("proximity_timeout");
 			}
 		}
 
