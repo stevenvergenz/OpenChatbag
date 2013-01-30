@@ -181,27 +181,45 @@ namespace OpenChatbag
 				foreach( ProximityTrigger trig in i.triggerList.GetTriggers(typeof(ProximityTrigger)))
 				{
 					if( trig.Range == range ){
+						OpenChatbagModule.os_log.DebugFormat("[Chatbag]: Interaction {0}.{1} triggered", Name, i.Name);
 						List<Response> message = i.responses.GetResponse();
 						foreach( Response r in message ){
+							string prepString = "";
 							switch(r.Volume){
 							case Response.VolumeType.Global:
-								ChatHandler.DelayDeliverWorldMessage(Name, r.Channel, r.Text, r.Delay);
+								prepString = r.Text.Replace("{name}", match.MatchedMessage.Sender.Name);
+								prepString = String.Format(prepString, match.MatchedWording);
+								ChatHandler.DelayDeliverWorldMessage(Name, r.Channel, 
+									prepString, r.Delay);
 								break;
 								
 							case Response.VolumeType.Region:
-								ChatHandler.DelayDeliverRegionMessage(client.Scene.RegionInfo.RegionID, 
-								                                 Name, r.Channel, r.Text, r.Delay);
+								prepString = r.Text.Replace("{name}", match.MatchedMessage.Sender.Name);
+								prepString = String.Format(prepString, match.MatchedWording);
+								
+								ChatHandler.DelayDeliverRegionMessage(
+									match.MatchedMessage.Scene.RegionInfo.RegionID, Name, r.Channel, 
+									prepString, r.Delay);
 								break;
 								
 							case Response.VolumeType.Shout:
 							case Response.VolumeType.Say:
 							case Response.VolumeType.Whisper:
-								ChatHandler.DelayDeliverPrimMessage(tracker.Target, Name, 
-								                               r.Channel, r.Volume, r.Text, r.Delay);
+								prepString = r.Text.Replace("{name}", match.MatchedMessage.Sender.Name);
+								prepString = String.Format(prepString, match.MatchedWording);
+								
+								ChatHandler.DelayDeliverPrimMessage(
+									tracker.Target, Name, r.Channel, r.Volume, 
+									prepString, r.Delay);
 								break;
 								
 							case Response.VolumeType.Private:
-								ChatHandler.DelayDeliverPrivateMessage(client.UUID, Name, r.Text, r.Delay);
+								prepString = r.Text.Replace("{name}", match.MatchedMessage.Sender.Name);
+								prepString = String.Format(prepString, match.MatchedWording);
+								
+								ChatHandler.DelayDeliverPrivateMessage(
+									match.MatchedMessage.SenderUUID, Name, 
+									prepString, r.Delay);
 								break;
 							}
 						}
